@@ -96,10 +96,12 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         Pizza Konfigurator
       </h2>
 
-      <div className="space-y-6">
+      <div className="space-y-4">
         {/* Pizza Count */}
         <div className="space-y-2">
-          <Label htmlFor="pizzaCount">Anzahl der Pizzen</Label>
+          <Label htmlFor="pizzaCount" className="font-semibold">
+            Anzahl der Pizzen
+          </Label>
           <Select
             value={config.pizzaCount.toString()}
             onValueChange={(value) =>
@@ -121,7 +123,9 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
 
         {/* Pizza Size */}
         <div className="space-y-2">
-          <Label htmlFor="pizzaSize">Pizzagröße</Label>
+          <Label htmlFor="pizzaSize" className="font-semibold">
+            Pizzagröße
+          </Label>
           <Select
             value={config.pizzaSize}
             onValueChange={(value) => handleChange("pizzaSize", value)}
@@ -130,17 +134,27 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
               <SelectValue placeholder="Wähle die Größe" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="20-50cm (180g Dough ball)">20-50cm</SelectItem>
-              <SelectItem value="25-28cm (210g Dough ball)">25-28cm</SelectItem>
-              <SelectItem value="28-30cm (240g Dough ball)">28-30cm</SelectItem>
-              <SelectItem value="30-32cm (280g Dough ball)">30-32cm</SelectItem>
+              <SelectItem value="20-50cm (180g Dough ball)">
+                Ø20-50cm
+              </SelectItem>
+              <SelectItem value="25-28cm (210g Dough ball)">
+                Ø25-28cm
+              </SelectItem>
+              <SelectItem value="28-30cm (240g Dough ball)">
+                Ø28-30cm
+              </SelectItem>
+              <SelectItem value="30-32cm (280g Dough ball)">
+                Ø30-32cm
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         {/* Preparation Time */}
         <div className="space-y-2">
-          <Label htmlFor="preparationTime">Vorbereitungszeit</Label>
+          <Label htmlFor="preparationTime" className="font-semibold">
+            Vorbereitung
+          </Label>
           <Select
             value={config.preparationTime}
             onValueChange={(value) => handleChange("preparationTime", value)}
@@ -150,10 +164,10 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Predough a day before">
-                Vorteig am Tag zuvor
+                Vorteig ein Tag zuvor
               </SelectItem>
               <SelectItem value="8h before Eating Time">
-                8 Stunden vor dem Essen
+                Vorteig 8 Stunden vor dem Essen
               </SelectItem>
               <SelectItem value="Without Predough">Ohne Vorteig</SelectItem>
             </SelectContent>
@@ -162,7 +176,9 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
 
         {/* Hydration */}
         <div className="space-y-2">
-          <Label htmlFor="hydration">Hydration des Teiges</Label>
+          <Label htmlFor="hydration" className="font-semibold">
+            Hydration des Teiges
+          </Label>
           <Select
             value={config.hydration}
             onValueChange={(value) => handleChange("hydration", value)}
@@ -182,7 +198,9 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
 
         {/* Yeast Type */}
         <div className="space-y-2">
-          <Label htmlFor="yeastType">Hefeart</Label>
+          <Label htmlFor="yeastType" className="font-semibold">
+            Hefeart
+          </Label>
           <Select
             value={config.yeastType}
             onValueChange={(value) => handleChange("yeastType", value)}
@@ -199,7 +217,9 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
 
         {/* Predough Percentage */}
         <div className="space-y-2">
-          <Label htmlFor="predoughPercentage">Vorteiganteil</Label>
+          <Label htmlFor="predoughPercentage" className="font-semibold">
+            Vorteiganteil
+          </Label>
           <Select
             value={config.predoughPercentage}
             onValueChange={(value) => handleChange("predoughPercentage", value)}
@@ -219,7 +239,9 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
 
         {/* Kneading Method */}
         <div className="space-y-2">
-          <Label htmlFor="kneadingMethod">Knetmethode</Label>
+          <Label htmlFor="kneadingMethod" className="font-semibold">
+            Knetmethode
+          </Label>
           <Select
             value={config.kneadingMethod}
             onValueChange={(value) => handleChange("kneadingMethod", value)}
@@ -236,7 +258,9 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
 
         {/* Oven Type */}
         <div className="space-y-2">
-          <Label htmlFor="ovenType">Ofentyp</Label>
+          <Label htmlFor="ovenType" className="font-semibold">
+            Ofentyp
+          </Label>
           <Select
             value={config.ovenType}
             onValueChange={(value) => handleChange("ovenType", value)}
@@ -259,7 +283,9 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
 
         {/* Max Temperature */}
         <div className="space-y-2">
-          <Label htmlFor="maxTemperature">Maximale Temperatur</Label>
+          <Label htmlFor="maxTemperature" className="font-semibold">
+            Maximale Temperatur
+          </Label>
           <Select
             value={config.maxTemperature}
             onValueChange={(value) => handleChange("maxTemperature", value)}
@@ -278,7 +304,9 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
 
         {/* Pizza Surface */}
         <div className="space-y-2">
-          <Label htmlFor="pizzaSurface">Pizzaunterlage</Label>
+          <Label htmlFor="pizzaSurface" className="font-semibold">
+            Pizzaunterlage
+          </Label>
           <Select
             value={config.pizzaSurface}
             onValueChange={(value) => handleChange("pizzaSurface", value)}
@@ -302,7 +330,9 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
 
         {/* Oven Size */}
         <div className="space-y-2">
-          <Label htmlFor="ovenSize">Ofengröße</Label>
+          <Label htmlFor="ovenSize" className="font-semibold">
+            Ofengröße
+          </Label>
           <Select
             value={config.ovenSize}
             onValueChange={(value) => handleChange("ovenSize", value)}
@@ -326,7 +356,9 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="eatingDate">Datum</Label>
+              <Label htmlFor="eatingDate" className="font-semibold">
+                Datum
+              </Label>
               <DatePicker
                 date={
                   config.eatingDate ? new Date(config.eatingDate) : undefined
@@ -342,7 +374,9 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="eatingTime">Uhrzeit</Label>
+              <Label htmlFor="eatingTime" className="font-semibold">
+                Uhrzeit
+              </Label>
               <input
                 type="time"
                 id="eatingTime"
@@ -356,7 +390,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
 
         {/* Toppings */}
         <div className="space-y-2">
-          <Label>Belag</Label>
+          <Label className="font-semibold">Belag</Label>
           <div className="grid grid-cols-2 gap-4">
             {[
               { id: "topping-ham", label: "Schinken", value: "Ham" },

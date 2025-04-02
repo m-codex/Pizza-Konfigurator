@@ -8,7 +8,7 @@ import {
 } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
 import { Button } from "../components/ui/button";
-import { Check, ShoppingBasket, EyeOff, Eye } from "lucide-react";
+import { Check, ShoppingBasket, CircleCheck, EyeOff, Eye } from "lucide-react";
 import { cn } from "../lib/utils";
 
 interface ShoppingListItem {
@@ -59,12 +59,29 @@ const ShoppingList = ({
   return (
     <Card className="w-full bg-white shadow-md">
       <CardHeader className="pb-3 px-3 sm:px-6">
-        <CardTitle className="flex items-center text-xl font-bold text-gray-800">
-          <ShoppingBasket className="mr-2 h-5 w-5" />
+        <CardTitle className="text-2xl font-bold text-gray-800">
           {displayTitle}
+          <Button
+            variant="outline"
+            size="sm"
+            className="mt-2 ml-auto flex items-center gap-2"
+            onClick={() => setHideCheckedItems(!hideCheckedItems)}
+          >
+            {hideCheckedItems ? (
+              <>
+                <CircleCheck className="h-4 w-4" />
+                Einblenden ({checkedItemsCount})
+              </>
+            ) : (
+              <>
+                <CircleCheck className="h-4 w-4" />
+                Ausblenden ({checkedItemsCount})
+              </>
+            )}
+          </Button>
         </CardTitle>
       </CardHeader>
-      <CardContent className="px-3 sm:px-6">
+      <CardContent className="px-2 sm:px-6">
         <div className="space-y-1">
           {displayedItems.map((item, index) => {
             // Find the original index in the items array
@@ -91,9 +108,7 @@ const ShoppingList = ({
                     <span
                       className={cn(
                         "text-sm font-medium",
-                        item.checked
-                          ? "line-through text-gray-400"
-                          : "text-gray-700",
+                        item.checked ? "text-gray-400" : "text-gray-700",
                       )}
                     >
                       {item.name}
@@ -109,28 +124,6 @@ const ShoppingList = ({
           })}
         </div>
       </CardContent>
-      {items.some((item) => item.checked) && (
-        <CardFooter className="px-3 sm:px-6 pt-2 pb-4">
-          <Button
-            variant="outline"
-            size="sm"
-            className="ml-auto flex items-center gap-2"
-            onClick={() => setHideCheckedItems(!hideCheckedItems)}
-          >
-            {hideCheckedItems ? (
-              <>
-                <Eye className="h-4 w-4" />
-                Abgehakte Zutaten einblenden ({checkedItemsCount})
-              </>
-            ) : (
-              <>
-                <EyeOff className="h-4 w-4" />
-                Abgehakte Zutaten ausblenden ({checkedItemsCount})
-              </>
-            )}
-          </Button>
-        </CardFooter>
-      )}
     </Card>
   );
 };

@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
 import { cn } from "../lib/utils";
+import { Check } from "lucide-react";
 
 interface RecipeDisplayProps {
   recipe?: {
@@ -23,7 +24,7 @@ const RecipeDisplay = ({
   recipe = {
     title: "Pizza Rezept",
     preDoughSteps: [
-      "1120g Vorteig (Poolish) herstellen",
+      "Am Vortag 1120g Vorteig (Poolish) herstellen",
       "Dazu eine Schüssel mit einem Fassungsvermögen von mind. 2,8L nehmen",
       "560ml Wasser hineingeben",
       "Dann 5g Trockenhefe dazu geben und kurz umrühren",
@@ -57,6 +58,57 @@ const RecipeDisplay = ({
   className,
   isDayBeforePreparation = false,
 }: RecipeDisplayProps) => {
+  // State to track checked steps for each section
+  const [preDoughCheckedSteps, setPreDoughCheckedSteps] = useState<number[]>(
+    [],
+  );
+  const [mainDoughCheckedSteps, setMainDoughCheckedSteps] = useState<number[]>(
+    [],
+  );
+  const [bakingCheckedSteps, setBakingCheckedSteps] = useState<number[]>([]);
+
+  // Helper function to determine if a step can be checked
+  const canCheckStep = (
+    index: number,
+    checkedSteps: number[],
+    totalSteps: number,
+  ): boolean => {
+    // First step can always be checked if no steps are checked
+    if (index === 0 && checkedSteps.length === 0) {
+      return true;
+    }
+
+    // Can check the next step after the last checked step
+    const lastCheckedIndex = Math.max(...checkedSteps, -1);
+    return index === lastCheckedIndex + 1 && index < totalSteps;
+  };
+
+  // Handle checking/unchecking a step
+  const handleToggleStep = (
+    index: number,
+    checkedSteps: number[],
+    setCheckedSteps: React.Dispatch<React.SetStateAction<number[]>>,
+    totalSteps: number,
+  ) => {
+    // If the step is already checked, uncheck it and all subsequent steps
+    if (checkedSteps.includes(index)) {
+      setCheckedSteps(checkedSteps.filter((step) => step < index));
+    }
+    // If the step can be checked, add it to checked steps
+    else if (canCheckStep(index, checkedSteps, totalSteps)) {
+      setCheckedSteps([...checkedSteps, index]);
+    }
+  };
+
+  // Determine if a step should be bold (next available step)
+  const isNextStep = (
+    index: number,
+    checkedSteps: number[],
+    totalSteps: number,
+  ): boolean => {
+    return canCheckStep(index, checkedSteps, totalSteps);
+  };
+
   return (
     <Card className={cn("bg-white p-3 sm:p-6 shadow-md", className)}>
       <div className="space-y-6">
@@ -81,13 +133,52 @@ const RecipeDisplay = ({
                 </span>
               )}
             </h3>
-            <div className="bg-green-50 p-4 rounded-md border border-green-100">
-              <ol className="space-y-3 list-decimal list-inside">
-                {recipe.preDoughSteps.map((step, index) => (
-                  <li key={index} className="text-gray-700">
-                    <span className="ml-2">{step}</span>
-                  </li>
-                ))}
+            <div className="bg-green-50 px-2 py-4 md:p-4 rounded-md border border-green-100">
+              <ol className="space-y-3 list-none">
+                {recipe.preDoughSteps.map((step, index) => {
+                  const isChecked = preDoughCheckedSteps.includes(index);
+                  const isNextAvailable = isNextStep(
+                    index,
+                    preDoughCheckedSteps,
+                    recipe.preDoughSteps?.length || 0,
+                  );
+
+                  return (
+                    <li
+                      key={index}
+                      className={cn(
+                        "flex items-start gap-2",
+                        isChecked ? "text-gray-400" : "text-gray-700",
+                        isNextAvailable && !isChecked ? "font-semibold" : "",
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border mt-0.5 cursor-pointer",
+                          isChecked
+                            ? "bg-green-500 border-green-500"
+                            : "border-gray-300",
+                          isNextAvailable && !isChecked
+                            ? "border-green-500"
+                            : "",
+                        )}
+                        onClick={() =>
+                          handleToggleStep(
+                            index,
+                            preDoughCheckedSteps,
+                            setPreDoughCheckedSteps,
+                            recipe.preDoughSteps?.length || 0,
+                          )
+                        }
+                      >
+                        {isChecked && <Check className="h-3 w-3 text-white" />}
+                      </div>
+                      <span className={cn("ml-1")}>
+                        {index + 1}. {step}
+                      </span>
+                    </li>
+                  );
+                })}
               </ol>
             </div>
           </div>
@@ -108,13 +199,52 @@ const RecipeDisplay = ({
                 </span>
               )}
             </h3>
-            <div className="p-4 bg-blue-50 rounded-md border border-gray-100">
-              <ol className="space-y-3 list-decimal list-inside">
-                {recipe.mainDoughSteps.map((step, index) => (
-                  <li key={index} className="text-gray-700">
-                    <span className="ml-2">{step}</span>
-                  </li>
-                ))}
+            <div className="px-2 py-4 md:p-4 bg-blue-50 rounded-md border border-gray-100">
+              <ol className="space-y-3 list-none">
+                {recipe.mainDoughSteps.map((step, index) => {
+                  const isChecked = mainDoughCheckedSteps.includes(index);
+                  const isNextAvailable = isNextStep(
+                    index,
+                    mainDoughCheckedSteps,
+                    recipe.mainDoughSteps?.length || 0,
+                  );
+
+                  return (
+                    <li
+                      key={index}
+                      className={cn(
+                        "flex items-start gap-2",
+                        isChecked ? "text-gray-400" : "text-gray-700",
+                        isNextAvailable && !isChecked ? "font-semibold" : "",
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border mt-0.5 cursor-pointer",
+                          isChecked
+                            ? "bg-blue-500 border-blue-500"
+                            : "border-gray-300",
+                          isNextAvailable && !isChecked
+                            ? "border-blue-500"
+                            : "",
+                        )}
+                        onClick={() =>
+                          handleToggleStep(
+                            index,
+                            mainDoughCheckedSteps,
+                            setMainDoughCheckedSteps,
+                            recipe.mainDoughSteps?.length || 0,
+                          )
+                        }
+                      >
+                        {isChecked && <Check className="h-3 w-3 text-white" />}
+                      </div>
+                      <span className={cn("ml-1")}>
+                        {index + 1}. {step}
+                      </span>
+                    </li>
+                  );
+                })}
               </ol>
             </div>
           </div>
@@ -129,15 +259,54 @@ const RecipeDisplay = ({
               </span>
             )}
           </h3>
-          <div className="bg-orange-50 p-4 rounded-md border border-orange-100">
-            <ol className="space-y-3 list-decimal list-inside">
+          <div className="bg-orange-50 px-2 py-4 md:p-4 rounded-md border border-orange-100">
+            <ol className="space-y-3 list-none">
               {recipe.bakingInstructions
                 ?.split("\n")
-                .map((instruction, index) => (
-                  <li key={index} className="text-gray-700">
-                    <span className="ml-2">{instruction}</span>
-                  </li>
-                ))}
+                .map((instruction, index) => {
+                  const isChecked = bakingCheckedSteps.includes(index);
+                  const isNextAvailable = isNextStep(
+                    index,
+                    bakingCheckedSteps,
+                    recipe.bakingInstructions?.split("\n").length || 0,
+                  );
+
+                  return (
+                    <li
+                      key={index}
+                      className={cn(
+                        "flex items-start gap-2",
+                        isChecked ? "text-gray-400" : "text-gray-700",
+                        isNextAvailable && !isChecked ? "font-semibold" : "",
+                      )}
+                    >
+                      <div
+                        className={cn(
+                          "flex h-5 w-5 flex-shrink-0 items-center justify-center rounded-full border mt-0.5 cursor-pointer",
+                          isChecked
+                            ? "bg-orange-500 border-orange-500"
+                            : "border-gray-300",
+                          isNextAvailable && !isChecked
+                            ? "border-orange-500"
+                            : "",
+                        )}
+                        onClick={() =>
+                          handleToggleStep(
+                            index,
+                            bakingCheckedSteps,
+                            setBakingCheckedSteps,
+                            recipe.bakingInstructions?.split("\n").length || 0,
+                          )
+                        }
+                      >
+                        {isChecked && <Check className="h-3 w-3 text-white" />}
+                      </div>
+                      <span className={cn("ml-1")}>
+                        {index + 1}. {instruction}
+                      </span>
+                    </li>
+                  );
+                })}
             </ol>
           </div>
         </div>

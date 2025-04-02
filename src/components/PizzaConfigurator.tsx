@@ -27,18 +27,18 @@ interface Recipe {
 
 const PizzaConfigurator: React.FC = () => {
   const [config, setConfig] = useState<PizzaConfiguration>({
-    pizzaCount: 4,
-    pizzaSize: "25-28cm (210g Dough ball)",
-    preparationTime: "8h before Eating Time",
+    pizzaCount: 8,
+    pizzaSize: "30-32cm (280g Dough ball)",
+    preparationTime: "Predough a day before",
     hydration: "65%",
     yeastType: "Dry yeast",
-    predoughPercentage: "30%",
+    predoughPercentage: "40%",
     kneadingMethod: "By Hand",
-    ovenType: "Kitchen oven",
-    maxTemperature: "275-300°C",
-    pizzaSurface: "Pizza stone",
+    ovenType: "Pizza oven stainless steel",
+    maxTemperature: "über 350°C",
+    pizzaSurface: "Not necessary",
     ovenSize: "60x60cm",
-    toppings: ["Salami", "Mushrooms"],
+    toppings: [],
     eatingDate: new Date(new Date().setDate(new Date().getDate() + 1))
       .toISOString()
       .split("T")[0], // Tomorrow
@@ -332,15 +332,23 @@ const PizzaConfigurator: React.FC = () => {
         (step) =>
           step.includes("Ein Tag Später") ||
           step.includes("nächsten Tag") ||
-          step.includes("Kühlschrank nehmen") ||
-          step.includes("Kühlschrank geben"),
+          step.includes("Kühlschrank nehmen"),
       );
 
       if (transitionIndex !== -1) {
-        // Split the steps at the transition point
-        preDoughSteps = allSteps.slice(0, transitionIndex);
-        // Skip the transition step itself
-        mainDoughSteps = allSteps.slice(transitionIndex + 1);
+        // Find the index of the step that puts the dough in the refrigerator
+        const refrigeratorIndex = allSteps.findIndex((step) =>
+          step.includes("Kühlschrank geben"),
+        );
+
+        // Split the steps at the transition point, ensuring the refrigerator step is included in preDoughSteps
+        if (refrigeratorIndex !== -1 && refrigeratorIndex < transitionIndex) {
+          preDoughSteps = allSteps.slice(0, refrigeratorIndex + 1);
+          mainDoughSteps = allSteps.slice(transitionIndex);
+        } else {
+          preDoughSteps = allSteps.slice(0, transitionIndex);
+          mainDoughSteps = allSteps.slice(transitionIndex);
+        }
       } else {
         // If no transition found, make a best guess split at 1/3 of the steps
         const splitPoint = Math.floor(allSteps.length / 3);
@@ -430,11 +438,12 @@ const PizzaConfigurator: React.FC = () => {
         `Danach ${mainDoughFlour}g Mehl dazugeben und mit der Hand alles vermischen`,
         "Den Teig auf die Arbeitsplatte geben",
         "Teig mind. 15min kneten",
-        "Gekneteter Teig auf Arbeitsplate zu einer Kugel formen und mit Olivenöl mit den Händen auftupfen",
+        "Gekneteter Teig auf Arbeitsplate zu einer Kugel formen und mit Olivenöl leicht einreiben",
         "Dann mit einer Schüssel zudecken für 15min stehen lassen",
         "Dann Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
         "Wieder zu einer Kugel formen und zugedeckt für 1h stehen lassen",
         `Teig in ${config.pizzaCount} Teiglinge à ${getBallSizeFromConfig(config.pizzaSize).size} teilen und kleine Kugeln formen`,
+        "Kugeln in einem geschlossenen, mit Olivenöl eingeriebenen Behälter, geben",
       ];
     } else if (config.preparationTime === "8h before Eating Time") {
       // Calculate target predough weight based on total dough weight and percentage
@@ -486,11 +495,12 @@ const PizzaConfigurator: React.FC = () => {
         config.kneadingMethod === "With Machine"
           ? "Teig ca. 10min kneten lassen"
           : "Teig auf die Arbeitsplatte geben und Teig ca. 15-20min von Hand kneten",
-        "Gekneteter Teig auf Arbeitsplatte zu einer Kugel formen und mit Olivenöl mit den Händen auftupfen",
+        "Gekneteter Teig auf Arbeitsplate zu einer Kugel formen und mit Olivenöl leicht einreiben",
         "Dann mit einer Schüssel zudecken für 15min stehen lassen",
         "Dann Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
         "Wieder zu einer Kugel formen und zugedeckt für 1h stehen lassen",
         `Teig in ${config.pizzaCount} Teiglinge à ${getBallSizeFromConfig(config.pizzaSize).size} teilen und kleine Kugeln formen`,
+        "Kugeln in einem geschlossenen, mit Olivenöl eingeriebenen Behälter, geben",
       ]
         .filter((item) => item !== null)
         .flat();
@@ -511,11 +521,12 @@ const PizzaConfigurator: React.FC = () => {
         Teig ca. 10min kneten`
           .split("\n")
           .filter((step) => step.trim() !== ""),
-        "Gekneteter Teig auf Arbeitsplate zu einer Kugel formen und mit Olivenöl mit den Händen auftupfen",
+        "Gekneteter Teig auf Arbeitsplate zu einer Kugel formen und mit Olivenöl leicht einreiben",
         "Dann mit einer Schüssel zudecken für 15min stehen lassen",
         "Dann Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
         "Wieder zu einer Kugel formen und zugedeckt für 1h stehen lassen",
         `Teig in ${config.pizzaCount} Teiglinge à ${getBallSizeFromConfig(config.pizzaSize).size} teilen und kleine Kugeln formen`,
+        "Kugeln in einem geschlossenen, mit Olivenöl eingeriebenen Behälter, geben",
       ];
     }
   };

@@ -3,9 +3,9 @@ import PizzaConfigurator from "./PizzaConfigurator";
 
 const Home: React.FC = () => {
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       <header className="bg-amber-600 text-white py-6 shadow-md">
-        <div className="container mx-auto px-1 sm:px-4">
+        <div className="flex flex-col gap-2 container mx-auto px-1 sm:px-4">
           <h1 className="text-4xl font-bold text-center">Pizza-Konfigurator</h1>
           <p className="text-center mt-2 max-w-2xl mx-auto">
             Erstelle deine perfekte hausgemachte Pizza mit unserem Konfigurator

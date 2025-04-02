@@ -73,7 +73,6 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
             className="flex items-center gap-1"
           >
             <Edit className="h-4 w-4" />
-            Bearbeiten
           </Button>
         </div>
 

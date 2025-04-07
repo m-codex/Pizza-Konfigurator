@@ -10,10 +10,16 @@ import {
 import { Checkbox } from "./ui/checkbox";
 import { DatePicker } from "./ui/date-picker";
 import { cn } from "../lib/utils";
+import {
+  cmToInches,
+  celsiusToFahrenheit,
+  ovenSizeToInches,
+} from "../lib/unitConversions";
 
 interface ConfigurationFormProps {
   onConfigChange?: (config: PizzaConfiguration) => void;
   initialConfig?: PizzaConfiguration;
+  isMetric?: boolean;
 }
 
 export interface PizzaConfiguration {
@@ -36,6 +42,7 @@ export interface PizzaConfiguration {
 const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
   onConfigChange = () => {},
   initialConfig,
+  isMetric = true,
 }) => {
   const defaultConfig: PizzaConfiguration = {
     pizzaCount: 4,
@@ -148,16 +155,16 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="20-50cm (180g Dough ball)">
-                Ø20-50cm
+                {isMetric ? "Ø20-50cm" : cmToInches("Ø20-50cm")}
               </SelectItem>
               <SelectItem value="25-28cm (210g Dough ball)">
-                Ø25-28cm
+                {isMetric ? "Ø25-28cm" : cmToInches("Ø25-28cm")}
               </SelectItem>
               <SelectItem value="28-30cm (240g Dough ball)">
-                Ø28-30cm
+                {isMetric ? "Ø28-30cm" : cmToInches("Ø28-30cm")}
               </SelectItem>
               <SelectItem value="30-32cm (280g Dough ball)">
-                Ø30-32cm
+                {isMetric ? "Ø30-32cm" : cmToInches("Ø30-32cm")}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -317,10 +324,18 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
               <SelectValue placeholder="Wähle die maximale Temperatur" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="250-275°C">250-275°C</SelectItem>
-              <SelectItem value="275-300°C">275-300°C</SelectItem>
-              <SelectItem value="300-350°C">300-350°C</SelectItem>
-              <SelectItem value="über 350°C">über 350°C</SelectItem>
+              <SelectItem value="250-275°C">
+                {isMetric ? "250-275°C" : celsiusToFahrenheit("250-275°C")}
+              </SelectItem>
+              <SelectItem value="275-300°C">
+                {isMetric ? "275-300°C" : celsiusToFahrenheit("275-300°C")}
+              </SelectItem>
+              <SelectItem value="300-350°C">
+                {isMetric ? "300-350°C" : celsiusToFahrenheit("300-350°C")}
+              </SelectItem>
+              <SelectItem value="über 350°C">
+                {isMetric ? "über 350°C" : celsiusToFahrenheit("über 350°C")}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -364,10 +379,18 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
               <SelectValue placeholder="Wähle die Ofengröße" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="40x40cm">40x40cm</SelectItem>
-              <SelectItem value="60x60cm">60x60cm</SelectItem>
-              <SelectItem value="80x80cm">80x80cm</SelectItem>
-              <SelectItem value="100x100cm">100x100cm</SelectItem>
+              <SelectItem value="40x40cm">
+                {isMetric ? "40x40cm" : ovenSizeToInches("40x40cm")}
+              </SelectItem>
+              <SelectItem value="60x60cm">
+                {isMetric ? "60x60cm" : ovenSizeToInches("60x60cm")}
+              </SelectItem>
+              <SelectItem value="80x80cm">
+                {isMetric ? "80x80cm" : ovenSizeToInches("80x80cm")}
+              </SelectItem>
+              <SelectItem value="100x100cm">
+                {isMetric ? "100x100cm" : ovenSizeToInches("100x100cm")}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>

@@ -3,6 +3,7 @@ import { Card } from "../components/ui/card";
 import { Separator } from "../components/ui/separator";
 import { cn } from "../lib/utils";
 import { Check } from "lucide-react";
+import { convertMeasurementsInText } from "../lib/unitConversions";
 
 interface RecipeDisplayProps {
   recipe?: {
@@ -18,6 +19,7 @@ interface RecipeDisplayProps {
   };
   className?: string;
   isDayBeforePreparation?: boolean;
+  isMetric?: boolean;
 }
 
 const RecipeDisplay = ({
@@ -57,6 +59,7 @@ const RecipeDisplay = ({
   },
   className,
   isDayBeforePreparation = false,
+  isMetric = true,
 }: RecipeDisplayProps) => {
   // State to track checked steps for each section
   const [preDoughCheckedSteps, setPreDoughCheckedSteps] = useState<number[]>(
@@ -174,7 +177,10 @@ const RecipeDisplay = ({
                         {isChecked && <Check className="h-3 w-3 text-white" />}
                       </div>
                       <span className={cn("ml-1")}>
-                        {index + 1}. {step}
+                        {index + 1}.{" "}
+                        {isMetric
+                          ? step
+                          : convertMeasurementsInText(step, isMetric)}
                       </span>
                     </li>
                   );
@@ -240,7 +246,10 @@ const RecipeDisplay = ({
                         {isChecked && <Check className="h-3 w-3 text-white" />}
                       </div>
                       <span className={cn("ml-1")}>
-                        {index + 1}. {step}
+                        {index + 1}.{" "}
+                        {isMetric
+                          ? step
+                          : convertMeasurementsInText(step, isMetric)}
                       </span>
                     </li>
                   );
@@ -302,7 +311,10 @@ const RecipeDisplay = ({
                         {isChecked && <Check className="h-3 w-3 text-white" />}
                       </div>
                       <span className={cn("ml-1")}>
-                        {index + 1}. {instruction}
+                        {index + 1}.{" "}
+                        {isMetric
+                          ? instruction
+                          : convertMeasurementsInText(instruction, isMetric)}
                       </span>
                     </li>
                   );

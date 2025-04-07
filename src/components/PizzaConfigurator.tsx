@@ -6,6 +6,14 @@ import ActionButtons from "./ActionButtons";
 import ConfigSummary from "./ConfigSummary";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
 import { Pizza, ShoppingBasket, FileText } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+import { convertMeasurementsInText } from "../lib/unitConversions";
 
 interface ShoppingListItem {
   name: string;
@@ -26,6 +34,7 @@ interface Recipe {
 }
 
 const PizzaConfigurator: React.FC = () => {
+  const [unitSystem, setUnitSystem] = useState<"metric" | "us">("metric");
   const [config, setConfig] = useState<PizzaConfiguration>({
     pizzaCount: 8,
     pizzaSize: "30-32cm (280g Dough ball)",
@@ -397,7 +406,7 @@ const PizzaConfigurator: React.FC = () => {
     const predoughPercentage =
       config.predoughPercentage === "Kein Vorteig"
         ? 0
-        : parseInt(config.predoughPercentage.replace("%", "")) / 100;
+        : parseFloat(config.predoughPercentage.replace("%", "")) / 100;
 
     if (config.preparationTime === "Predough a day before") {
       // Calculate target predough weight based on total dough weight and percentage
@@ -440,12 +449,12 @@ const PizzaConfigurator: React.FC = () => {
         config.kneadingMethod === "With Machine"
           ? "Den Vorteig (Poolish) in den Behälter der Küchemaschine geben"
           : `Eine neue Schüssel mit Fassungsvermögen von mind. ${mainDoughBowlSize}L nehmen und den Vorteig (Poolish) dort hineingeben`,
-        `Dann ${saltAmount}g Salz hinzugeben und umrühren`,
-        config.kneadingMethod === "With Machine" ? "Olivenöl zugeben" : null,
-        `Danach ${mainDoughFlour}g Mehl dazugeben`,
         config.kneadingMethod === "With Machine"
           ? `${mainDoughWater}ml Wasser langsam Esslöfelweise hinzugeben`
-          : `${mainDoughWater}ml Wasser hinzugeben und von Hand vermischen`,
+          : `${mainDoughWater}ml Wasser hinzugeben`,
+        `Dann ${saltAmount}g Salz hinzugeben und umrühren`,
+        config.kneadingMethod === "With Machine" ? "Olivenöl zugeben" : null,
+        `Danach ${mainDoughFlour}g Mehl dazugeben und von Hand vermischen`,
         config.kneadingMethod === "With Machine"
           ? "Teig ca. 10min kneten lassen"
           : "Teig auf die Arbeitsplatte geben und Teig ca. 15-20min von Hand kneten",
@@ -497,12 +506,12 @@ const PizzaConfigurator: React.FC = () => {
         config.kneadingMethod === "With Machine"
           ? "Den Vorteig (Poolish) in den Behälter der Küchemaschine geben"
           : `Eine neue Schüssel mit Fassungsvermögen von mind. ${mainDoughBowlSize}L nehmen und den Vorteig (Poolish) dort hineingeben`,
-        `Dann ${saltAmount}g Salz hinzugeben und umrühren`,
-        config.kneadingMethod === "With Machine" ? "Olivenöl zugeben" : null,
-        `Danach ${mainDoughFlour}g Mehl dazugeben`,
         config.kneadingMethod === "With Machine"
           ? `${mainDoughWater}ml Wasser langsam Esslöfelweise hinzugeben`
-          : `${mainDoughWater}ml Wasser hinzugeben und von Hand vermischen`,
+          : `${mainDoughWater}ml Wasser hinzugeben`,
+        `Dann ${saltAmount}g Salz hinzugeben und umrühren`,
+        config.kneadingMethod === "With Machine" ? "Olivenöl zugeben" : null,
+        `Danach ${mainDoughFlour}g Mehl dazugeben und von Hand vermischen`,
         config.kneadingMethod === "With Machine"
           ? "Teig ca. 10min kneten lassen"
           : "Teig auf die Arbeitsplatte geben und Teig ca. 15-20min von Hand kneten",
@@ -523,9 +532,9 @@ const PizzaConfigurator: React.FC = () => {
         `Eine Schüssel mit einem Fassungsvermögen von mind. ${totalBowlSize}L nehmen`,
         `${waterAmount}ml Wasser hineingeben`,
         `Dann ${yeastAmount}g ${config.yeastType === "Dry yeast" ? "Trockenhefe" : "Frischhefe"} dazu geben und kurz umrühren`,
-        `Danach ${honeyAmount}g Honig beimischen`,
-        `Als nächstes ${saltAmount}g Salz hinzugeben und umrühren`,
+        `Danach ${honeyAmount}g Honig beimischen und 10min stehen lassen`,
         `Dann ${flourAmount}g Mehl dazugeben`,
+        `Als nächstes ${saltAmount}g Salz hinzugeben und von Hand vermischen`,
         config.kneadingMethod === "With Machine" ? "Olivenöl zugeben" : null,
         config.kneadingMethod === "With Machine"
           ? "Teig ca. 10min kneten lassen"
@@ -602,7 +611,7 @@ const PizzaConfigurator: React.FC = () => {
     const yeastDisplay = `${yeastAmount}g`;
     const saltDisplay = `${saltAmount}g`;
     const honeyDisplay = `${honeyAmount}g`;
-    const oilAmount = "50ml"; // Approximate
+    const oilAmount = `${config.pizzaCount * 10}ml`; // 10ml per pizza
 
     const baseItems: ShoppingListItem[] = [
       { name: "Mehl (Tipo 00)", amount: flourDisplay, checked: false },
@@ -695,29 +704,43 @@ const PizzaConfigurator: React.FC = () => {
 
   return (
     <div className="container mx-auto py-4 px-2 sm:px-4 bg-gray-50 min-h-screen">
+      <div className="flex justify-end mb-4">
+        <Select
+          value={unitSystem}
+          onValueChange={(value: "metric" | "us") => setUnitSystem(value)}
+        >
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Einheit wählen" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="metric">Metrisch</SelectItem>
+            <SelectItem value="us">US Customary</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
         <TabsList className="grid w-full h-full grid-cols-3 mb-4">
           <TabsTrigger
             value="configuration"
-            className="flex flex-col md:flex-row items-center gap-2 p-2"
+            className="flex flex-col text-sm md:text-base md:flex-row items-center gap-2 p-2"
           >
-            <Pizza className="h-4 w-4" />
+            <Pizza className="h-5 w-5" />
             Konfiguration
           </TabsTrigger>
           <TabsTrigger
             value="recipe"
-            className="flex flex-col md:flex-row items-center gap-2 p-2"
+            className="flex flex-col text-sm md:text-base md:flex-row items-center gap-2 p-2"
             disabled={!recipe}
           >
-            <FileText className="h-4 w-4" />
+            <FileText className="h-5 w-5" />
             Rezept
           </TabsTrigger>
           <TabsTrigger
             value="shopping"
-            className="flex flex-col md:flex-row items-center gap-2 p-2"
+            className="flex flex-col text-sm md:text-base md:flex-row items-center gap-2 p-2"
             disabled={!shoppingList.length}
           >
-            <ShoppingBasket className="h-4 w-4" />
+            <ShoppingBasket className="h-5 w-5" />
             Einkaufsliste
           </TabsTrigger>
         </TabsList>
@@ -726,6 +749,7 @@ const PizzaConfigurator: React.FC = () => {
           <ConfigurationForm
             onConfigChange={handleConfigChange}
             initialConfig={config}
+            isMetric={unitSystem === "metric"}
           />
 
           {isPastStartTime && (
@@ -751,6 +775,7 @@ const PizzaConfigurator: React.FC = () => {
               <ConfigSummary
                 config={config}
                 onEditClick={() => setActiveTab("configuration")}
+                isMetric={unitSystem === "metric"}
               />
 
               <RecipeDisplay
@@ -758,6 +783,7 @@ const PizzaConfigurator: React.FC = () => {
                 isDayBeforePreparation={
                   config.preparationTime === "Predough a day before"
                 }
+                isMetric={unitSystem === "metric"}
               />
 
               <div className="flex justify-center">
@@ -779,6 +805,7 @@ const PizzaConfigurator: React.FC = () => {
                 onToggleItem={handleToggleShoppingItem}
                 pizzaCount={config.pizzaCount}
                 pizzaSize={getBallSizeFromConfig(config.pizzaSize).diameter}
+                isMetric={unitSystem === "metric"}
               />
 
               <div className="flex justify-center">

@@ -17,15 +17,22 @@ import {
   Utensils,
 } from "lucide-react";
 import { PizzaConfiguration } from "./ConfigurationForm";
+import {
+  celsiusToFahrenheit,
+  cmToInches,
+  ovenSizeToInches,
+} from "../lib/unitConversions";
 
 interface ConfigSummaryProps {
   config: PizzaConfiguration;
   onEditClick: () => void;
+  isMetric?: boolean;
 }
 
 const ConfigSummary: React.FC<ConfigSummaryProps> = ({
   config,
   onEditClick,
+  isMetric = true,
 }) => {
   // Helper function to format the date
   const formatDate = (dateString: string) => {
@@ -82,7 +89,10 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
             <Pizza className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Pizzen:</span>
             <span>
-              {config.pizzaCount} x {translatePizzaSize(config.pizzaSize)}
+              {config.pizzaCount} x{" "}
+              {isMetric
+                ? translatePizzaSize(config.pizzaSize)
+                : cmToInches(translatePizzaSize(config.pizzaSize))}
             </span>
           </div>
 
@@ -155,7 +165,11 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
           <div className="flex items-start gap-2">
             <Thermometer className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Max. Temperatur:</span>
-            <span>{config.maxTemperature}</span>
+            <span>
+              {isMetric
+                ? config.maxTemperature
+                : celsiusToFahrenheit(config.maxTemperature)}
+            </span>
           </div>
 
           {/* Pizza surface */}
@@ -175,7 +189,9 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
           <div className="flex items-start gap-2">
             <Ruler className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Ofengröße:</span>
-            <span>{config.ovenSize}</span>
+            <span>
+              {isMetric ? config.ovenSize : ovenSizeToInches(config.ovenSize)}
+            </span>
           </div>
 
           {/* Toppings */}

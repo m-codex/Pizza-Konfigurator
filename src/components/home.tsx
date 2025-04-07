@@ -14,7 +14,7 @@ const Home: React.FC = () => {
           </p>
         </div>
       </header>
-      <main className="container mx-auto px-1 sm:px-4 py-8">
+      <main className="container mx-auto px-1 sm:px-4 py-1">
         <PizzaConfigurator />
       </main>
       <footer className="bg-gray-800 text-white py-6 mt-12">

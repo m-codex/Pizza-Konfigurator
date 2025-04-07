@@ -10,6 +10,7 @@ import { Separator } from "../components/ui/separator";
 import { Button } from "../components/ui/button";
 import { Check, ShoppingBasket, CircleCheck, EyeOff, Eye } from "lucide-react";
 import { cn } from "../lib/utils";
+import { convertAmount } from "../lib/unitConversions";
 
 interface ShoppingListItem {
   name: string;
@@ -23,6 +24,7 @@ interface ShoppingListProps {
   onToggleItem?: (index: number) => void;
   pizzaCount?: number;
   pizzaSize?: string;
+  isMetric?: boolean;
 }
 
 const ShoppingList = ({
@@ -41,6 +43,7 @@ const ShoppingList = ({
   onToggleItem = () => {},
   pizzaCount = 8,
   pizzaSize = "Ø30-32cm",
+  isMetric = true,
 }: ShoppingListProps) => {
   const [hideCheckedItems, setHideCheckedItems] = useState(false);
 
@@ -114,7 +117,9 @@ const ShoppingList = ({
                       {item.name}
                     </span>
                   </div>
-                  <span className="text-sm text-gray-500">{item.amount}</span>
+                  <span className="text-sm text-gray-500">
+                    {convertAmount(item.amount, isMetric)}
+                  </span>
                 </div>
                 {index < displayedItems.length - 1 && (
                   <Separator className="my-1" />

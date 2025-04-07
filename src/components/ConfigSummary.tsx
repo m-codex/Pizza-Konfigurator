@@ -79,7 +79,7 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2 text-sm">
           {/* Pizza count and size */}
           <div className="flex items-start gap-2">
-            <Pizza className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <Pizza className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Pizzen:</span>
             <span>
               {config.pizzaCount} x {translatePizzaSize(config.pizzaSize)}
@@ -88,7 +88,7 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
 
           {/* Date and time */}
           <div className="flex items-start gap-2">
-            <Clock className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <Clock className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Datum:</span>
             <span>
               {formatDate(config.eatingDate)}, {config.eatingTime} Uhr
@@ -97,21 +97,21 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
 
           {/* Preparation time */}
           <div className="flex items-start gap-2">
-            <Timer className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <Timer className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Vorbereitung:</span>
             <span>{translatePreparationTime(config.preparationTime)}</span>
           </div>
 
           {/* Hydration */}
           <div className="flex items-start gap-2">
-            <Droplet className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <Droplet className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Hydration:</span>
             <span>{config.hydration}</span>
           </div>
 
           {/* Yeast type */}
           <div className="flex items-start gap-2">
-            <Wheat className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <Wheat className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Hefe:</span>
             <span>
               {config.yeastType === "Dry yeast" ? "Trockenhefe" : "Frischhefe"}
@@ -120,14 +120,14 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
 
           {/* Predough percentage */}
           <div className="flex items-start gap-2">
-            <Percent className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <Percent className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Vorteiganteil:</span>
             <span>{config.predoughPercentage}</span>
           </div>
 
           {/* Kneading method */}
           <div className="flex items-start gap-2">
-            <Hand className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <Hand className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Knetmethode:</span>
             <span>
               {config.kneadingMethod === "By Hand"
@@ -138,7 +138,7 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
 
           {/* Oven type */}
           <div className="flex items-start gap-2">
-            <FlameKindling className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <FlameKindling className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Ofentyp:</span>
             <span>
               {config.ovenType === "Kitchen oven"
@@ -153,14 +153,14 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
 
           {/* Max temperature */}
           <div className="flex items-start gap-2">
-            <Thermometer className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <Thermometer className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Max. Temperatur:</span>
             <span>{config.maxTemperature}</span>
           </div>
 
           {/* Pizza surface */}
           <div className="flex items-start gap-2">
-            <Layers className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <Layers className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Pizzaunterlage:</span>
             <span>
               {config.pizzaSurface === "Pizza stone"
@@ -173,7 +173,7 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
 
           {/* Oven size */}
           <div className="flex items-start gap-2">
-            <Ruler className="h-4 w-4 text-amber-600 flex-shrink-0" />
+            <Ruler className="h-4 w-4 text-orange-600 flex-shrink-0" />
             <span className="font-semibold">Ofengröße:</span>
             <span>{config.ovenSize}</span>
           </div>
@@ -181,7 +181,7 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
           {/* Toppings */}
           {config.toppings.length > 0 && (
             <div className="flex items-start gap-2">
-              <Utensils className="h-4 w-4 text-amber-600 flex-shrink-0" />
+              <Utensils className="h-4 w-4 text-orange-600 flex-shrink-0" />
               <span className="font-semibold">Belag:</span>
               <span>
                 {config.toppings

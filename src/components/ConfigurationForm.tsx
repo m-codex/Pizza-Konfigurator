@@ -76,6 +76,19 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
       }
     }
 
+    // If preparation time is changed to "Without Predough", set predough percentage to "Kein Vorteig"
+    if (field === "preparationTime") {
+      if (value === "Without Predough") {
+        newConfig = { ...newConfig, predoughPercentage: "Kein Vorteig" };
+      } else if (
+        config.preparationTime === "Without Predough" &&
+        config.predoughPercentage === "Kein Vorteig"
+      ) {
+        // If changing from "Without Predough" to something else, reset predough percentage to default
+        newConfig = { ...newConfig, predoughPercentage: "30%" };
+      }
+    }
+
     setConfig(newConfig);
     onConfigChange(newConfig);
   };
@@ -223,18 +236,28 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
           <Select
             value={config.predoughPercentage}
             onValueChange={(value) => handleChange("predoughPercentage", value)}
+            disabled={config.preparationTime === "Without Predough"}
           >
             <SelectTrigger id="predoughPercentage" className="w-full">
               <SelectValue placeholder="Wähle den Vorteiganteil" />
             </SelectTrigger>
             <SelectContent>
+              <SelectItem value="10%">10%</SelectItem>
               <SelectItem value="20%">20%</SelectItem>
               <SelectItem value="30%">30%</SelectItem>
               <SelectItem value="40%">40%</SelectItem>
               <SelectItem value="50%">50%</SelectItem>
               <SelectItem value="60%">60%</SelectItem>
+              {config.preparationTime === "Without Predough" && (
+                <SelectItem value="Kein Vorteig">Kein Vorteig</SelectItem>
+              )}
             </SelectContent>
           </Select>
+          {config.preparationTime === "Without Predough" && (
+            <p className="text-sm text-muted-foreground mt-1">
+              Bei Zubereitung ohne Vorteig ist kein Vorteiganteil erforderlich
+            </p>
+          )}
         </div>
 
         {/* Kneading Method */}

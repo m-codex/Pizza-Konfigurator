@@ -395,7 +395,9 @@ const PizzaConfigurator: React.FC = () => {
     const honeyAmount = yeastAmount; // Honey is same as yeast weight
 
     const predoughPercentage =
-      parseInt(config.predoughPercentage.replace("%", "")) / 100;
+      config.predoughPercentage === "Kein Vorteig"
+        ? 0
+        : parseInt(config.predoughPercentage.replace("%", "")) / 100;
 
     if (config.preparationTime === "Predough a day before") {
       // Calculate target predough weight based on total dough weight and percentage
@@ -432,19 +434,30 @@ const PizzaConfigurator: React.FC = () => {
         "Dann 1h zugedeckt bei Zimmertemperatur stehen lassen",
         "Danach zugedeckt in den Kühlschrank geben",
         "Am nächsten Tag 3h vor dem Backen die Schüssel mit dem Vorteig (Poolish) aus dem Kühlschrank nehmen",
-        `Eine neue Schüssel mit Fassungsvermögen von mind. ${mainDoughBowlSize}L nehmen und den Vorteig (Poolish) dort hineingeben`,
-        `${mainDoughWater}ml Wasser hinzugeben und von Hand mit dem Vorteig (Poolish) mischen`,
+        config.kneadingMethod === "With Machine"
+          ? "Küchenmaschine mit Knethaken vorbereiten"
+          : null,
+        config.kneadingMethod === "With Machine"
+          ? "Den Vorteig (Poolish) in den Behälter der Küchemaschine geben"
+          : `Eine neue Schüssel mit Fassungsvermögen von mind. ${mainDoughBowlSize}L nehmen und den Vorteig (Poolish) dort hineingeben`,
         `Dann ${saltAmount}g Salz hinzugeben und umrühren`,
-        `Danach ${mainDoughFlour}g Mehl dazugeben und mit der Hand alles vermischen`,
-        "Den Teig auf die Arbeitsplatte geben",
-        "Teig mind. 15min kneten",
+        config.kneadingMethod === "With Machine" ? "Olivenöl zugeben" : null,
+        `Danach ${mainDoughFlour}g Mehl dazugeben`,
+        config.kneadingMethod === "With Machine"
+          ? `${mainDoughWater}ml Wasser langsam Esslöfelweise hinzugeben`
+          : `${mainDoughWater}ml Wasser hinzugeben und von Hand vermischen`,
+        config.kneadingMethod === "With Machine"
+          ? "Teig ca. 10min kneten lassen"
+          : "Teig auf die Arbeitsplatte geben und Teig ca. 15-20min von Hand kneten",
         "Gekneteter Teig auf Arbeitsplate zu einer Kugel formen und mit Olivenöl leicht einreiben",
         "Dann mit einer Schüssel zudecken für 15min stehen lassen",
         "Dann Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
         "Wieder zu einer Kugel formen und zugedeckt für 1h stehen lassen",
         `Teig in ${config.pizzaCount} Teiglinge à ${getBallSizeFromConfig(config.pizzaSize).size} teilen und kleine Kugeln formen`,
         "Kugeln in einem geschlossenen, mit Olivenöl eingeriebenen Behälter, geben",
-      ];
+      ]
+        .filter((item) => item !== null)
+        .flat();
     } else if (config.preparationTime === "8h before Eating Time") {
       // Calculate target predough weight based on total dough weight and percentage
       const targetPredoughWeight = Math.round(
@@ -476,18 +489,16 @@ const PizzaConfigurator: React.FC = () => {
         `${predoughWater}ml Wasser hineingeben`,
         `Dann ${yeastAmount}g ${config.yeastType === "Dry yeast" ? "Trockenhefe" : "Frischhefe"} dazu geben und kurz umrühren`,
         `Danach ${honeyAmount}g Honig beimischen`,
-        `Zum Schluss ${predoughFlour}g Mehl hinein geben und mit einem Löffel mischen bis die Klumpen weg sind`,
+        `Zum Schluss ${predoughFlour}g Mehl hinein geben und mit einem Löffel mischen bis kein Mehl mehr zusehen ist`,
         "Dann ca. 6h zugedeckt bei Zimmertemperatur stehen lassen",
         config.kneadingMethod === "With Machine"
           ? "Küchenmaschine mit Knethaken vorbereiten"
           : null,
         config.kneadingMethod === "With Machine"
           ? "Den Vorteig (Poolish) in den Behälter der Küchemaschine geben"
-          : "Den Vorteig (Poolish) in eine große Schüssel geben",
-        `Dann ${saltAmount}g Salz hinzugeben`,
-        config.kneadingMethod === "With Machine"
-          ? "Olivenöl zugeben und Küchenmaschine in Stufe 2 kneten lassen"
-          : null,
+          : `Eine neue Schüssel mit Fassungsvermögen von mind. ${mainDoughBowlSize}L nehmen und den Vorteig (Poolish) dort hineingeben`,
+        `Dann ${saltAmount}g Salz hinzugeben und umrühren`,
+        config.kneadingMethod === "With Machine" ? "Olivenöl zugeben" : null,
         `Danach ${mainDoughFlour}g Mehl dazugeben`,
         config.kneadingMethod === "With Machine"
           ? `${mainDoughWater}ml Wasser langsam Esslöfelweise hinzugeben`
@@ -513,21 +524,21 @@ const PizzaConfigurator: React.FC = () => {
         `${waterAmount}ml Wasser hineingeben`,
         `Dann ${yeastAmount}g ${config.yeastType === "Dry yeast" ? "Trockenhefe" : "Frischhefe"} dazu geben und kurz umrühren`,
         `Danach ${honeyAmount}g Honig beimischen`,
-        `Zum Schluss ${flourAmount}g Mehl hinein geben und grob vermengen`,
-        `${config.kneadingMethod === "With Machine" ? "Küchenmaschine mit Knethaken vorbereiten" : ""}
-        ${config.kneadingMethod === "With Machine" ? "Den Teig in den Behälter der Küchemaschine geben" : ""}
-        Dann ${saltAmount}g Salz hinzugeben
-        Olivenöl zugeben ${config.kneadingMethod === "With Machine" ? "und Küchenmaschine in Stufe 2 kneten lassen" : ""}
-        Teig ca. 10min kneten`
-          .split("\n")
-          .filter((step) => step.trim() !== ""),
+        `Als nächstes ${saltAmount}g Salz hinzugeben und umrühren`,
+        `Dann ${flourAmount}g Mehl dazugeben`,
+        config.kneadingMethod === "With Machine" ? "Olivenöl zugeben" : null,
+        config.kneadingMethod === "With Machine"
+          ? "Teig ca. 10min kneten lassen"
+          : "Teig auf die Arbeitsplatte geben und Teig ca. 15-20min von Hand kneten",
         "Gekneteter Teig auf Arbeitsplate zu einer Kugel formen und mit Olivenöl leicht einreiben",
         "Dann mit einer Schüssel zudecken für 15min stehen lassen",
         "Dann Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
         "Wieder zu einer Kugel formen und zugedeckt für 1h stehen lassen",
         `Teig in ${config.pizzaCount} Teiglinge à ${getBallSizeFromConfig(config.pizzaSize).size} teilen und kleine Kugeln formen`,
         "Kugeln in einem geschlossenen, mit Olivenöl eingeriebenen Behälter, geben",
-      ];
+      ]
+        .filter((item) => item !== null)
+        .flat();
     }
   };
 

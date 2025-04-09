@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
-import { convertMeasurementsInText } from "../lib/unitConversions";
+import { convertMeasurementsInText, cmToInches } from "../lib/unitConversions";
 
 interface ShoppingListItem {
   name: string;
@@ -43,7 +43,7 @@ const PizzaConfigurator: React.FC = () => {
     yeastType: "Dry yeast",
     predoughPercentage: "40%",
     kneadingMethod: "By Hand",
-    ovenType: "Pizza oven stainless steel",
+    ovenType: "Pizza wood oven stainless steel",
     maxTemperature: "über 350°C",
     pizzaSurface: "Not necessary",
     ovenSize: "60x60cm",
@@ -106,8 +106,11 @@ const PizzaConfigurator: React.FC = () => {
       const { preDoughSteps, mainDoughSteps } = splitPreparationSteps(config);
 
       // Generate recipe based on configuration
+      const pizzaDiameter = getBallSizeFromConfig(config.pizzaSize).diameter;
+      const displayDiameter =
+        unitSystem === "metric" ? pizzaDiameter : cmToInches(pizzaDiameter);
       const generatedRecipe = {
-        title: `Pizza Rezept für ${config.pizzaCount} Pizzen mit ${getBallSizeFromConfig(config.pizzaSize).diameter}`,
+        title: `Pizza Rezept für ${config.pizzaCount} Pizzen mit ${displayDiameter}`,
         preDoughSteps,
         preDoughDate,
         mainDoughSteps,
@@ -163,6 +166,19 @@ const PizzaConfigurator: React.FC = () => {
     checkIfStartTimeIsPast(config);
   }, []);
 
+  // Update recipe title when unit system changes
+  React.useEffect(() => {
+    if (recipe) {
+      const pizzaDiameter = getBallSizeFromConfig(config.pizzaSize).diameter;
+      const displayDiameter =
+        unitSystem === "metric" ? pizzaDiameter : cmToInches(pizzaDiameter);
+      setRecipe({
+        ...recipe,
+        title: `Pizza Rezept für ${config.pizzaCount} Pizzen mit ${displayDiameter}`,
+      });
+    }
+  }, [unitSystem]);
+
   // Calculate flour amount based on total dough weight and hydration
   const calculateFlourAmount = (
     totalDoughWeight: number,
@@ -213,10 +229,10 @@ const PizzaConfigurator: React.FC = () => {
     let baseMinutes = 0;
 
     // Base preheating time by oven type
-    if (ovenType === "Kitchen oven") baseMinutes = 45;
-    else if (ovenType === "Grill") baseMinutes = 30;
-    else if (ovenType === "Pizza oven stainless steel") baseMinutes = 30;
-    else if (ovenType === "Pizza oven stone") baseMinutes = 180;
+    if (ovenType === "Kitchen oven") baseMinutes = 40;
+    else if (ovenType === "Gasgrill") baseMinutes = 30;
+    else if (ovenType === "Pizza wood oven stainless steel") baseMinutes = 40;
+    else if (ovenType === "Pizza wood oven stone") baseMinutes = 105;
 
     // Multiplier based on surface size
     let multiplier = 1;
@@ -225,17 +241,19 @@ const PizzaConfigurator: React.FC = () => {
     else if (ovenSize === "100x100cm") multiplier = 2.5;
 
     const minutes = Math.round(baseMinutes * multiplier);
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
+    const minutesfifteen = Math.ceil(minutes / 15);
+    const minutesrounded = Math.round(minutesfifteen * 15);
+    const hours = Math.floor(minutesrounded / 60);
+    const remainingMinutes = minutesrounded % 60;
 
     let formatted = "";
     if (hours > 0) {
-      formatted = `${minutes}min (${hours}h${remainingMinutes > 0 ? ` ${remainingMinutes}min` : ""})`;
+      formatted = `${minutesrounded}min (${hours}h${remainingMinutes > 0 ? ` ${remainingMinutes}min` : ""})`;
     } else {
-      formatted = `${minutes}min`;
+      formatted = `${minutesrounded}min`;
     }
 
-    return { minutes, formatted };
+    return { minutesrounded, formatted };
   };
 
   // Calculate baking time based on oven type and temperature
@@ -458,7 +476,7 @@ const PizzaConfigurator: React.FC = () => {
         config.kneadingMethod === "With Machine"
           ? "Teig ca. 10min kneten lassen"
           : "Teig auf die Arbeitsplatte geben und Teig ca. 15-20min von Hand kneten",
-        "Gekneteter Teig auf Arbeitsplate zu einer Kugel formen und mit Olivenöl leicht einreiben",
+        "Gekneteter Teig auf Arbeitsplatte zu einer Kugel formen und mit Olivenöl leicht einreiben",
         "Dann mit einer Schüssel zudecken für 15min stehen lassen",
         "Dann Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
         "Wieder zu einer Kugel formen und zugedeckt für 1h stehen lassen",
@@ -515,7 +533,7 @@ const PizzaConfigurator: React.FC = () => {
         config.kneadingMethod === "With Machine"
           ? "Teig ca. 10min kneten lassen"
           : "Teig auf die Arbeitsplatte geben und Teig ca. 15-20min von Hand kneten",
-        "Gekneteter Teig auf Arbeitsplate zu einer Kugel formen und mit Olivenöl leicht einreiben",
+        "Gekneteter Teig auf Arbeitsplatte zu einer Kugel formen und mit Olivenöl leicht einreiben",
         "Dann mit einer Schüssel zudecken für 15min stehen lassen",
         "Dann Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
         "Wieder zu einer Kugel formen und zugedeckt für 1h stehen lassen",
@@ -539,7 +557,7 @@ const PizzaConfigurator: React.FC = () => {
         config.kneadingMethod === "With Machine"
           ? "Teig ca. 10min kneten lassen"
           : "Teig auf die Arbeitsplatte geben und Teig ca. 15-20min von Hand kneten",
-        "Gekneteter Teig auf Arbeitsplate zu einer Kugel formen und mit Olivenöl leicht einreiben",
+        "Gekneteter Teig auf Arbeitsplatte zu einer Kugel formen und mit Olivenöl leicht einreiben",
         "Dann mit einer Schüssel zudecken für 15min stehen lassen",
         "Dann Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
         "Wieder zu einer Kugel formen und zugedeckt für 1h stehen lassen",
@@ -560,9 +578,11 @@ const PizzaConfigurator: React.FC = () => {
 
     // Calculate when to start preheating
     const { bakingDate } = calculateDates(config, true);
-    const preheatStartTime = new Date(bakingDate);
+    // Create a proper clone of the Date object
+    const preheatStartTime = new Date(bakingDate.getTime());
+    // Use minutesrounded instead of minutes which doesn't exist
     preheatStartTime.setMinutes(
-      preheatStartTime.getMinutes() - preheatTime.minutes,
+      preheatStartTime.getMinutes() - preheatTime.minutesrounded,
     );
 
     // Format the preheat start time
@@ -571,7 +591,7 @@ const PizzaConfigurator: React.FC = () => {
       minute: "2-digit",
     });
 
-    return `Ofen ca. ${preheatTime.formatted} vor dem Backen aufheizen (um ${preheatTimeStr} Uhr)\nTemperatur von Ofen und ${config.pizzaSurface === "Pizza stone" ? "Stein" : config.pizzaSurface === "Pizza steel" ? "Stahl" : "Oberfläche"} prüfen\nWenn beides bei ${config.maxTemperature} liegt Pizza für ca. ${bakingTime}min backen`;
+    return `Ofen ca. ${preheatTime.formatted} vor dem Backen aufheizen (um ${preheatTimeStr} Uhr)\nPizzakugel von Hand zu einem Pizzaboden formen und Pizza kurz vor dem Backen belegen\nTemperatur von Ofen und ${config.pizzaSurface === "Pizza stone" ? "Stein" : config.pizzaSurface === "Pizza steel" ? "Stahl" : "Oberfläche"} prüfen. Wenn beides bei ${config.maxTemperature} liegt Pizza für ca. ${bakingTime}min backen`;
   };
 
   const calculateTotalTime = (config: PizzaConfiguration): string => {
@@ -698,6 +718,55 @@ const PizzaConfigurator: React.FC = () => {
         checked: false,
       });
     }
+    if (config.toppings.includes("Olives")) {
+      toppingItems.push({
+        name: "Oliven",
+        amount: `${config.pizzaCount * 15}g`,
+        checked: false,
+      });
+    }
+    if (config.toppings.includes("Artichokes")) {
+      toppingItems.push({
+        name: "Artischocken",
+        amount: `${Math.ceil(config.pizzaCount / 4)} Stück`,
+        checked: false,
+      });
+    }
+    if (config.toppings.includes("Mascarpone")) {
+      toppingItems.push({
+        name: "Mascarpone",
+        amount: `${config.pizzaCount * 25}g`,
+        checked: false,
+      });
+    }
+    if (config.toppings.includes("Burrata")) {
+      toppingItems.push({
+        name: "Burrata",
+        amount: `${Math.ceil(config.pizzaCount / 2)} Stück`,
+        checked: false,
+      });
+    }
+    if (config.toppings.includes("Garlic")) {
+      toppingItems.push({
+        name: "Knoblauch",
+        amount: `${Math.ceil(config.pizzaCount / 4)} Zehen`,
+        checked: false,
+      });
+    }
+    if (config.toppings.includes("Cherry Tomatoes")) {
+      toppingItems.push({
+        name: "Kirschtomaten",
+        amount: `${config.pizzaCount * 30}g`,
+        checked: false,
+      });
+    }
+    if (config.toppings.includes("Arugula")) {
+      toppingItems.push({
+        name: "Rucola",
+        amount: `${Math.ceil(config.pizzaCount / 4)} Bund`,
+        checked: false,
+      });
+    }
 
     return [...baseItems, ...toppingItems];
   };
@@ -747,9 +816,10 @@ const PizzaConfigurator: React.FC = () => {
 
         <TabsContent value="configuration" className="space-y-8">
           <ConfigurationForm
-            onConfigChange={handleConfigChange}
+            onConfigChange={handleGenerateRecipe}
             initialConfig={config}
             isMetric={unitSystem === "metric"}
+            isGenerating={isGenerating}
           />
 
           {isPastStartTime && (
@@ -760,13 +830,6 @@ const PizzaConfigurator: React.FC = () => {
               </p>
             </div>
           )}
-          <div className="flex justify-center">
-            <ActionButtons
-              onGenerateRecipe={handleGenerateRecipe}
-              isGenerating={isGenerating}
-              isRecipeGenerated={!!recipe}
-            />
-          </div>
         </TabsContent>
 
         <TabsContent value="recipe" className="space-y-8">
@@ -785,14 +848,6 @@ const PizzaConfigurator: React.FC = () => {
                 }
                 isMetric={unitSystem === "metric"}
               />
-
-              <div className="flex justify-center">
-                <ActionButtons
-                  onGenerateRecipe={handleGenerateRecipe}
-                  isGenerating={isGenerating}
-                  isRecipeGenerated={true}
-                />
-              </div>
             </>
           )}
         </TabsContent>
@@ -807,14 +862,6 @@ const PizzaConfigurator: React.FC = () => {
                 pizzaSize={getBallSizeFromConfig(config.pizzaSize).diameter}
                 isMetric={unitSystem === "metric"}
               />
-
-              <div className="flex justify-center">
-                <ActionButtons
-                  onGenerateRecipe={handleGenerateRecipe}
-                  isGenerating={isGenerating}
-                  isRecipeGenerated={true}
-                />
-              </div>
             </>
           )}
         </TabsContent>

@@ -4,7 +4,7 @@ import PizzaConfigurator from "./PizzaConfigurator";
 const Home: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="text-white -mx-10 px-10 shadow-md bg-center bg-cover bg-[url('https://storage.googleapis.com/tempo-public-images/github%7C97963158-1743606315193-Pizzajpg')]">
+      <header className="text-white text-balance -mx-10 px-10 shadow-md bg-center bg-cover bg-[url('https://storage.googleapis.com/tempo-public-images/github%7C97963158-1743606315193-Pizzajpg')]">
         <div className="flex flex-col py-6 gap-2 w-full mx-auto px-2 sm:px-4 bg-black/30">
           <h1 className="text-4xl font-bold text-center">
             Der Ultimative Pizza-Konfigurator

@@ -10,6 +10,7 @@ import {
 import { Checkbox } from "./ui/checkbox";
 import { DatePicker } from "./ui/date-picker";
 import { cn } from "../lib/utils";
+import { Loader2, FileText } from "lucide-react";
 import {
   cmToInches,
   celsiusToFahrenheit,
@@ -20,6 +21,7 @@ interface ConfigurationFormProps {
   onConfigChange?: (config: PizzaConfiguration) => void;
   initialConfig?: PizzaConfiguration;
   isMetric?: boolean;
+  isGenerating?: boolean;
 }
 
 export interface PizzaConfiguration {
@@ -43,6 +45,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
   onConfigChange = () => {},
   initialConfig,
   isMetric = true,
+  isGenerating = false,
 }) => {
   const defaultConfig: PizzaConfiguration = {
     pizzaCount: 4,
@@ -77,7 +80,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
 
     // If oven type is changed to a pizza oven, set pizza surface to "Not necessary"
     if (field === "ovenType") {
-      const isPizzaOven = value.includes("Pizza oven");
+      const isPizzaOven = value.includes("Pizza wood oven");
       if (isPizzaOven) {
         newConfig = { ...newConfig, pizzaSurface: "Not necessary" };
       }
@@ -300,12 +303,12 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Kitchen oven">Backofen</SelectItem>
-              <SelectItem value="Grill">Grill</SelectItem>
-              <SelectItem value="Pizza oven stainless steel">
-                Pizzaofen aus Edelstahl
+              <SelectItem value="Gasgrill">Gasgrill mit Deckel</SelectItem>
+              <SelectItem value="Pizza wood oven stainless steel">
+                Pizzaholzofen aus Edelstahl
               </SelectItem>
-              <SelectItem value="Pizza oven stone">
-                Pizzaofen aus Stein
+              <SelectItem value="Pizza wood oven stone">
+                Pizzaholzofen aus Stein
               </SelectItem>
             </SelectContent>
           </Select>
@@ -348,7 +351,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
           <Select
             value={config.pizzaSurface}
             onValueChange={(value) => handleChange("pizzaSurface", value)}
-            disabled={config.ovenType.includes("Pizza oven")}
+            disabled={config.ovenType.includes("Pizza wood oven")}
           >
             <SelectTrigger id="pizzaSurface" className="w-full">
               <SelectValue placeholder="Wähle die Pizzaunterlage" />
@@ -356,10 +359,10 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
             <SelectContent>
               <SelectItem value="Pizza stone">Pizzastein</SelectItem>
               <SelectItem value="Pizza steel">Pizzastahl</SelectItem>
-              <SelectItem value="Not necessary">Nicht notwendig</SelectItem>
+              <SelectItem value="Not necessary">Keine</SelectItem>
             </SelectContent>
           </Select>
-          {config.ovenType.includes("Pizza oven") && (
+          {config.ovenType.includes("Pizza wood oven") && (
             <p className="text-sm text-muted-foreground mt-1">
               Bei Pizzaöfen ist keine separate Unterlage notwendig
             </p>
@@ -400,8 +403,8 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
           <h3 className="text-lg font-semibold mb-2">
             Wann möchtest du essen?
           </h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="space-y-2">
+          <div className="grid grid-cols-3 gap-4">
+            <div className="space-y-2 col-span-2">
               <Label htmlFor="eatingDate" className="font-semibold">
                 Datum
               </Label>
@@ -435,54 +438,173 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         </div>
 
         {/* Toppings */}
-        <div className="space-y-2">
-          <Label className="font-semibold">Belag</Label>
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              { id: "topping-ham", label: "Schinken", value: "Ham" },
-              { id: "topping-salami", label: "Salami", value: "Salami" },
-              {
-                id: "topping-hotsalami",
-                label: "Scharfe Salami",
-                value: "Hot Salami",
-              },
-              { id: "topping-rawham", label: "Rohschinken", value: "Raw Ham" },
-              { id: "topping-onion", label: "Zwiebeln", value: "Onion" },
-              {
-                id: "topping-mushrooms",
-                label: "Champignons",
-                value: "Mushrooms",
-              },
-              {
-                id: "topping-pepperoni",
-                label: "Peperoni",
-                value: "Pepperoni",
-              },
-              { id: "topping-Ananas", label: "Ananas", value: "Pineapple" },
-            ].map((topping) => (
-              <div key={topping.id} className="flex items-center space-x-2">
-                <Checkbox
-                  id={topping.id}
-                  checked={config.toppings.includes(topping.value)}
-                  onCheckedChange={(checked) =>
-                    handleToppingChange(topping.value, checked as boolean)
-                  }
-                />
-                <Label
-                  htmlFor={topping.id}
-                  className={cn(
-                    "cursor-pointer",
-                    config.toppings.includes(topping.value)
-                      ? "font-medium"
-                      : "",
-                  )}
-                >
-                  {topping.label}
-                </Label>
-              </div>
-            ))}
+        <div className="space-y-4">
+          <Label className="font-semibold text-lg">Belag</Label>
+
+          {/* Meats */}
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-gray-700 border-b pb-1">
+              Fleisch
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { id: "topping-ham", label: "Schinken", value: "Ham" },
+                { id: "topping-salami", label: "Salami", value: "Salami" },
+                {
+                  id: "topping-hotsalami",
+                  label: "Scharfe Salami",
+                  value: "Hot Salami",
+                },
+                {
+                  id: "topping-rawham",
+                  label: "Rohschinken",
+                  value: "Raw Ham",
+                },
+              ].map((topping) => (
+                <div key={topping.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={topping.id}
+                    checked={config.toppings.includes(topping.value)}
+                    onCheckedChange={(checked) =>
+                      handleToppingChange(topping.value, checked as boolean)
+                    }
+                  />
+                  <Label
+                    htmlFor={topping.id}
+                    className={cn(
+                      "cursor-pointer",
+                      config.toppings.includes(topping.value)
+                        ? "font-medium"
+                        : "",
+                    )}
+                  >
+                    {topping.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Vegetables */}
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-gray-700 border-b pb-1">
+              Gemüse
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { id: "topping-onion", label: "Zwiebeln", value: "Onion" },
+                {
+                  id: "topping-mushrooms",
+                  label: "Champignons",
+                  value: "Mushrooms",
+                },
+                {
+                  id: "topping-pepperoni",
+                  label: "Peperoni",
+                  value: "Pepperoni",
+                },
+                { id: "topping-olives", label: "Oliven", value: "Olives" },
+                {
+                  id: "topping-artichokes",
+                  label: "Artischocken",
+                  value: "Artichokes",
+                },
+                { id: "topping-garlic", label: "Knoblauch", value: "Garlic" },
+                {
+                  id: "topping-cherry-tomatoes",
+                  label: "Kirschtomaten",
+                  value: "Cherry Tomatoes",
+                },
+                { id: "topping-arugula", label: "Rucola", value: "Arugula" },
+                {
+                  id: "topping-pineapple",
+                  label: "Ananas",
+                  value: "Pineapple",
+                },
+              ].map((topping) => (
+                <div key={topping.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={topping.id}
+                    checked={config.toppings.includes(topping.value)}
+                    onCheckedChange={(checked) =>
+                      handleToppingChange(topping.value, checked as boolean)
+                    }
+                  />
+                  <Label
+                    htmlFor={topping.id}
+                    className={cn(
+                      "cursor-pointer",
+                      config.toppings.includes(topping.value)
+                        ? "font-medium"
+                        : "",
+                    )}
+                  >
+                    {topping.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Cheeses */}
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-gray-700 border-b pb-1">
+              Käse
+            </h4>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                {
+                  id: "topping-mascarpone",
+                  label: "Mascarpone",
+                  value: "Mascarpone",
+                },
+                { id: "topping-burrata", label: "Burrata", value: "Burrata" },
+              ].map((topping) => (
+                <div key={topping.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={topping.id}
+                    checked={config.toppings.includes(topping.value)}
+                    onCheckedChange={(checked) =>
+                      handleToppingChange(topping.value, checked as boolean)
+                    }
+                  />
+                  <Label
+                    htmlFor={topping.id}
+                    className={cn(
+                      "cursor-pointer",
+                      config.toppings.includes(topping.value)
+                        ? "font-medium"
+                        : "",
+                    )}
+                  >
+                    {topping.label}
+                  </Label>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+      </div>
+
+      {/* Generate Recipe Button */}
+      <div className="mt-8 flex justify-center">
+        <button
+          onClick={() => onConfigChange(config)}
+          className="w-full bg-orange-600 text-white hover:bg-orange-600/90 h-12 rounded-md px-4 py-2 flex items-center justify-center gap-2 font-medium"
+          disabled={isGenerating}
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span className="text-gray-200">Rezept wird generiert...</span>
+            </>
+          ) : (
+            <>
+              <FileText className="h-5 w-5" />
+              <span>Rezept generieren</span>
+            </>
+          )}
+        </button>
       </div>
     </div>
   );

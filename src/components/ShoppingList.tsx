@@ -10,7 +10,7 @@ import { Separator } from "../components/ui/separator";
 import { Button } from "../components/ui/button";
 import { Check, ShoppingBasket, CircleCheck, EyeOff, Eye } from "lucide-react";
 import { cn } from "../lib/utils";
-import { convertAmount } from "../lib/unitConversions";
+import { convertAmount, cmToInches } from "../lib/unitConversions";
 
 interface ShoppingListItem {
   name: string;
@@ -49,7 +49,8 @@ const ShoppingList = ({
 
   // Generate dynamic title if not provided
   const displayTitle =
-    title || `Einkaufsliste für ${pizzaCount} Pizzen mit ${pizzaSize}`;
+    title ||
+    `Einkaufsliste für ${pizzaCount} Pizzen mit ${isMetric ? pizzaSize : cmToInches(pizzaSize)}`;
 
   // Filter items based on the hideCheckedItems state
   const displayedItems = hideCheckedItems

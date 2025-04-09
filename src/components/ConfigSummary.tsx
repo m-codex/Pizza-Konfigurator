@@ -153,11 +153,13 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
             <span>
               {config.ovenType === "Kitchen oven"
                 ? "Backofen"
-                : config.ovenType === "Grill"
-                  ? "Grill"
-                  : config.ovenType === "Pizza oven stone"
-                    ? "Pizzaofen (Stein)"
-                    : "Pizzaofen (Edelstahl)"}
+                : config.ovenType === "Gasgrill"
+                  ? "Gasgrill mit Deckel"
+                  : config.ovenType === "Pizza wood oven stone"
+                    ? "Pizzaholzofen aus Stein"
+                    : config.ovenType === "Pizza wood oven stainless steel"
+                      ? "Pizzaholzofen aus Edelstahl"
+                      : config.ovenType}
             </span>
           </div>
 
@@ -219,6 +221,20 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
                         return "Peperoni";
                       case "Pineapple":
                         return "Ananas";
+                      case "Olives":
+                        return "Oliven";
+                      case "Artichokes":
+                        return "Artischocken";
+                      case "Mascarpone":
+                        return "Mascarpone";
+                      case "Burrata":
+                        return "Burrata";
+                      case "Garlic":
+                        return "Knoblauch";
+                      case "Cherry Tomatoes":
+                        return "Kirschtomaten";
+                      case "Arugula":
+                        return "Rucola";
                       default:
                         return topping;
                     }

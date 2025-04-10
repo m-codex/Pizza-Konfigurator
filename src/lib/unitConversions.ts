@@ -30,10 +30,10 @@ export const celsiusToFahrenheit = (celsius: string): string => {
   }
 
   // Handle "über 350°C"
-  if (celsius.includes("über")) {
+  if (celsius.includes(">")) {
     const num = parseInt(celsius.replace(/[^0-9]/g, ""));
     const fahrenheit = Math.round((num * 9) / 5 + 32);
-    return `über ${fahrenheit}°F`;
+    return `> ${fahrenheit}°F`;
   }
 
   // Handle simple temperature

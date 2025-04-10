@@ -16,12 +16,16 @@ import {
   celsiusToFahrenheit,
   ovenSizeToInches,
 } from "../lib/unitConversions";
+import { getTranslation, Language } from "../lib/i18n";
 
 interface ConfigurationFormProps {
   onConfigChange?: (config: PizzaConfiguration) => void;
+  onGenerateRecipe?: () => void;
   initialConfig?: PizzaConfiguration;
   isMetric?: boolean;
   isGenerating?: boolean;
+  language?: Language;
+  isPastStartTime?: boolean;
 }
 
 export interface PizzaConfiguration {
@@ -43,10 +47,14 @@ export interface PizzaConfiguration {
 
 const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
   onConfigChange = () => {},
+  onGenerateRecipe = () => {},
   initialConfig,
   isMetric = true,
   isGenerating = false,
+  language = "de",
+  isPastStartTime = false,
 }) => {
+  const t = getTranslation(language);
   const defaultConfig: PizzaConfiguration = {
     pizzaCount: 4,
     pizzaSize: "25-28cm (210g Dough ball)",
@@ -68,12 +76,50 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
     initialConfig || defaultConfig,
   );
 
+  // Set locale for date picker based on language
+  React.useEffect(() => {
+    // This will affect how the date picker displays dates
+    if (language === "en") {
+      document.documentElement.lang = "en-US";
+    } else {
+      document.documentElement.lang = "de-DE";
+    }
+  }, [language]);
+
   // Update local state when initialConfig changes
   React.useEffect(() => {
     if (initialConfig) {
       setConfig(initialConfig);
     }
   }, [initialConfig]);
+
+  // Convert 24-hour format to 12-hour format with AM/PM
+  const getHour12Format = () => {
+    const [hours, minutes] = config.eatingTime.split(":");
+    const hour = parseInt(hours, 10);
+    const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+    const period = hour >= 12 ? "PM" : "AM";
+    return {
+      hour: hour12.toString(),
+      minute: minutes,
+      period,
+    };
+  };
+
+  // Convert 12-hour format with AM/PM to 24-hour format
+  const handleTimeChange = (hour: string, minute: string, period: string) => {
+    const hour12 = parseInt(hour, 10);
+    let hour24 =
+      period === "AM"
+        ? hour12 === 12
+          ? 0
+          : hour12
+        : hour12 === 12
+          ? 12
+          : hour12 + 12;
+    const time24 = `${hour24.toString().padStart(2, "0")}:${minute}`;
+    handleChange("eatingTime", time24);
+  };
 
   const handleChange = (field: keyof PizzaConfiguration, value: any) => {
     let newConfig = { ...config, [field]: value };
@@ -116,14 +162,14 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
   return (
     <div className="bg-white p-3 sm:p-6 rounded-lg shadow-md w-full max-w-2xl">
       <h2 className="text-2xl font-bold mb-6 text-center">
-        Pizza Konfigurator
+        {t.configuration.title}
       </h2>
 
       <div className="space-y-4">
         {/* Pizza Count */}
         <div className="space-y-2">
           <Label htmlFor="pizzaCount" className="font-semibold">
-            Anzahl der Pizzen
+            {t.configuration.pizzaCount}
           </Label>
           <Select
             value={config.pizzaCount.toString()}
@@ -147,7 +193,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         {/* Pizza Size */}
         <div className="space-y-2">
           <Label htmlFor="pizzaSize" className="font-semibold">
-            Pizzagröße
+            {t.configuration.pizzaSize}
           </Label>
           <Select
             value={config.pizzaSize}
@@ -176,7 +222,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         {/* Preparation Time */}
         <div className="space-y-2">
           <Label htmlFor="preparationTime" className="font-semibold">
-            Vorbereitung
+            {t.configuration.preparation}
           </Label>
           <Select
             value={config.preparationTime}
@@ -187,12 +233,22 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Predough a day before">
-                Vorteig ein Tag zuvor
+                {language === "de"
+                  ? t.configuration.selectOptions.preparationTime.dayBefore
+                  : t.configuration.selectOptions.preparationTime.dayBefore}
               </SelectItem>
               <SelectItem value="8h before Eating Time">
-                Vorteig 8 Stunden vor dem Essen
+                {language === "de"
+                  ? t.configuration.selectOptions.preparationTime.eightHours
+                  : t.configuration.selectOptions.preparationTime.eightHours}
               </SelectItem>
-              <SelectItem value="Without Predough">Ohne Vorteig</SelectItem>
+              <SelectItem value="Without Predough">
+                {language === "de"
+                  ? t.configuration.selectOptions.preparationTime
+                      .withoutPredough
+                  : t.configuration.selectOptions.preparationTime
+                      .withoutPredough}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -200,7 +256,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         {/* Hydration */}
         <div className="space-y-2">
           <Label htmlFor="hydration" className="font-semibold">
-            Hydration des Teiges
+            {t.configuration.hydration}
           </Label>
           <Select
             value={config.hydration}
@@ -222,7 +278,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         {/* Yeast Type */}
         <div className="space-y-2">
           <Label htmlFor="yeastType" className="font-semibold">
-            Hefeart
+            {t.configuration.yeastType}
           </Label>
           <Select
             value={config.yeastType}
@@ -232,8 +288,16 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
               <SelectValue placeholder="Wähle die Hefeart" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Dry yeast">Trockenhefe</SelectItem>
-              <SelectItem value="Fresh yeast">Frischhefe</SelectItem>
+              <SelectItem value="Dry yeast">
+                {language === "de"
+                  ? t.configuration.selectOptions.yeastType.dry
+                  : t.configuration.selectOptions.yeastType.dry}
+              </SelectItem>
+              <SelectItem value="Fresh yeast">
+                {language === "de"
+                  ? t.configuration.selectOptions.yeastType.fresh
+                  : t.configuration.selectOptions.yeastType.fresh}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -241,7 +305,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         {/* Predough Percentage */}
         <div className="space-y-2">
           <Label htmlFor="predoughPercentage" className="font-semibold">
-            Vorteiganteil
+            {t.configuration.predoughPercentage}
           </Label>
           <Select
             value={config.predoughPercentage}
@@ -265,7 +329,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
           </Select>
           {config.preparationTime === "Without Predough" && (
             <p className="text-sm text-muted-foreground mt-1">
-              Bei Zubereitung ohne Vorteig ist kein Vorteiganteil erforderlich
+              {t.configuration.predoughInfo}
             </p>
           )}
         </div>
@@ -273,7 +337,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         {/* Kneading Method */}
         <div className="space-y-2">
           <Label htmlFor="kneadingMethod" className="font-semibold">
-            Knetmethode
+            {t.configuration.kneadingMethod}
           </Label>
           <Select
             value={config.kneadingMethod}
@@ -283,8 +347,16 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
               <SelectValue placeholder="Wähle die Knetmethode" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="By Hand">Von Hand</SelectItem>
-              <SelectItem value="With Machine">Mit Maschine</SelectItem>
+              <SelectItem value="By Hand">
+                {language === "de"
+                  ? t.configuration.selectOptions.kneadingMethod.byHand
+                  : t.configuration.selectOptions.kneadingMethod.byHand}
+              </SelectItem>
+              <SelectItem value="With Machine">
+                {language === "de"
+                  ? t.configuration.selectOptions.kneadingMethod.withMachine
+                  : t.configuration.selectOptions.kneadingMethod.withMachine}
+              </SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -292,7 +364,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         {/* Oven Type */}
         <div className="space-y-2">
           <Label htmlFor="ovenType" className="font-semibold">
-            Ofentyp
+            {t.configuration.ovenType}
           </Label>
           <Select
             value={config.ovenType}
@@ -302,13 +374,25 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
               <SelectValue placeholder="Wähle den Ofentyp" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Kitchen oven">Backofen</SelectItem>
-              <SelectItem value="Gasgrill">Gasgrill mit Deckel</SelectItem>
+              <SelectItem value="Kitchen oven">
+                {language === "de"
+                  ? t.configuration.selectOptions.ovenType.kitchen
+                  : t.configuration.selectOptions.ovenType.kitchen}
+              </SelectItem>
+              <SelectItem value="Gasgrill">
+                {language === "de"
+                  ? t.configuration.selectOptions.ovenType.gasGrill
+                  : t.configuration.selectOptions.ovenType.gasGrill}
+              </SelectItem>
               <SelectItem value="Pizza wood oven stainless steel">
-                Pizzaholzofen aus Edelstahl
+                {language === "de"
+                  ? t.configuration.selectOptions.ovenType.woodStainless
+                  : t.configuration.selectOptions.ovenType.woodStainless}
               </SelectItem>
               <SelectItem value="Pizza wood oven stone">
-                Pizzaholzofen aus Stein
+                {language === "de"
+                  ? t.configuration.selectOptions.ovenType.woodStone
+                  : t.configuration.selectOptions.ovenType.woodStone}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -317,7 +401,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         {/* Max Temperature */}
         <div className="space-y-2">
           <Label htmlFor="maxTemperature" className="font-semibold">
-            Maximale Temperatur
+            {t.configuration.maxTemperature}
           </Label>
           <Select
             value={config.maxTemperature}
@@ -336,8 +420,8 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
               <SelectItem value="300-350°C">
                 {isMetric ? "300-350°C" : celsiusToFahrenheit("300-350°C")}
               </SelectItem>
-              <SelectItem value="über 350°C">
-                {isMetric ? "über 350°C" : celsiusToFahrenheit("über 350°C")}
+              <SelectItem value="> 350°C">
+                {isMetric ? "> 350°C" : celsiusToFahrenheit("> 350°C")}
               </SelectItem>
             </SelectContent>
           </Select>
@@ -346,7 +430,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         {/* Pizza Surface */}
         <div className="space-y-2">
           <Label htmlFor="pizzaSurface" className="font-semibold">
-            Pizzaunterlage
+            {t.configuration.pizzaSurface}
           </Label>
           <Select
             value={config.pizzaSurface}
@@ -357,14 +441,26 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
               <SelectValue placeholder="Wähle die Pizzaunterlage" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Pizza stone">Pizzastein</SelectItem>
-              <SelectItem value="Pizza steel">Pizzastahl</SelectItem>
-              <SelectItem value="Not necessary">Keine</SelectItem>
+              <SelectItem value="Pizza stone">
+                {language === "de"
+                  ? t.configuration.selectOptions.pizzaSurface.stone
+                  : t.configuration.selectOptions.pizzaSurface.stone}
+              </SelectItem>
+              <SelectItem value="Pizza steel">
+                {language === "de"
+                  ? t.configuration.selectOptions.pizzaSurface.steel
+                  : t.configuration.selectOptions.pizzaSurface.steel}
+              </SelectItem>
+              <SelectItem value="Not necessary">
+                {language === "de"
+                  ? t.configuration.selectOptions.pizzaSurface.none
+                  : t.configuration.selectOptions.pizzaSurface.none}
+              </SelectItem>
             </SelectContent>
           </Select>
           {config.ovenType.includes("Pizza wood oven") && (
             <p className="text-sm text-muted-foreground mt-1">
-              Bei Pizzaöfen ist keine separate Unterlage notwendig
+              {t.configuration.pizzaSurfaceInfo}
             </p>
           )}
         </div>
@@ -372,7 +468,7 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         {/* Oven Size */}
         <div className="space-y-2">
           <Label htmlFor="ovenSize" className="font-semibold">
-            Ofengröße
+            {t.configuration.ovenSize}
           </Label>
           <Select
             value={config.ovenSize}
@@ -401,12 +497,12 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         {/* Eating Date and Time */}
         <div className="space-y-2 border-b pb-4 mb-4">
           <h3 className="text-lg font-semibold mb-2">
-            Wann möchtest du essen?
+            {t.configuration.eatingTime.title}
           </h3>
-          <div className="grid grid-cols-3 gap-4">
+          <div className="grid grid-cols-4 gap-2">
             <div className="space-y-2 col-span-2">
               <Label htmlFor="eatingDate" className="font-semibold">
-                Datum
+                {t.configuration.eatingTime.date}
               </Label>
               <DatePicker
                 date={
@@ -420,44 +516,133 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
                     );
                   }
                 }}
+                locale={language === "en" ? "en-US" : "de-DE"}
               />
             </div>
             <div className="space-y-2">
               <Label htmlFor="eatingTime" className="font-semibold">
-                Uhrzeit
+                {t.configuration.eatingTime.time}
               </Label>
-              <input
-                type="time"
-                id="eatingTime"
-                value={config.eatingTime}
-                onChange={(e) => handleChange("eatingTime", e.target.value)}
-                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-              />
+              {language === "de" ? (
+                <input
+                  type="time"
+                  id="eatingTime"
+                  value={config.eatingTime}
+                  onChange={(e) => handleChange("eatingTime", e.target.value)}
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              ) : (
+                <div className="flex gap-1">
+                  <div className="flex-1">
+                    <Select
+                      value={getHour12Format().hour}
+                      onValueChange={(value) =>
+                        handleTimeChange(
+                          value,
+                          getHour12Format().minute,
+                          getHour12Format().period,
+                        )
+                      }
+                    >
+                      <SelectTrigger id="hour" className="w-full pr-1">
+                        <SelectValue placeholder="Hour" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => i + 1).map(
+                          (hour) => (
+                            <SelectItem key={hour} value={hour.toString()}>
+                              {hour}
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex-1">
+                    <Select
+                      value={getHour12Format().minute}
+                      onValueChange={(value) =>
+                        handleTimeChange(
+                          getHour12Format().hour,
+                          value,
+                          getHour12Format().period,
+                        )
+                      }
+                    >
+                      <SelectTrigger id="minute" className="w-full pr-1">
+                        <SelectValue placeholder="Min" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 12 }, (_, i) => i * 5).map(
+                          (minute) => (
+                            <SelectItem
+                              key={minute}
+                              value={minute.toString().padStart(2, "0")}
+                            >
+                              {minute.toString().padStart(2, "0")}
+                            </SelectItem>
+                          ),
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="w-20">
+                    <Select
+                      value={getHour12Format().period}
+                      onValueChange={(value) =>
+                        handleTimeChange(
+                          getHour12Format().hour,
+                          getHour12Format().minute,
+                          value,
+                        )
+                      }
+                    >
+                      <SelectTrigger id="period" className="w-full pr-1">
+                        <SelectValue placeholder="AM/PM" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="AM">AM</SelectItem>
+                        <SelectItem value="PM">PM</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </div>
 
         {/* Toppings */}
         <div className="space-y-4">
-          <Label className="font-semibold text-lg">Belag</Label>
+          <Label className="font-semibold text-lg">
+            {t.configuration.toppings.title}
+          </Label>
 
           {/* Meats */}
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-gray-700 border-b pb-1">
-              Fleisch
+              {t.configuration.toppings.categories.meat}
             </h4>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { id: "topping-ham", label: "Schinken", value: "Ham" },
-                { id: "topping-salami", label: "Salami", value: "Salami" },
+                {
+                  id: "topping-ham",
+                  label: t.configuration.toppings.items["Ham"],
+                  value: "Ham",
+                },
+                {
+                  id: "topping-salami",
+                  label: t.configuration.toppings.items["Salami"],
+                  value: "Salami",
+                },
                 {
                   id: "topping-hotsalami",
-                  label: "Scharfe Salami",
+                  label: t.configuration.toppings.items["Hot Salami"],
                   value: "Hot Salami",
                 },
                 {
                   id: "topping-rawham",
-                  label: "Rohschinken",
+                  label: t.configuration.toppings.items["Raw Ham"],
                   value: "Raw Ham",
                 },
               ].map((topping) => (
@@ -488,37 +673,53 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
           {/* Vegetables */}
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-gray-700 border-b pb-1">
-              Gemüse
+              {t.configuration.toppings.categories.vegetables}
             </h4>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { id: "topping-onion", label: "Zwiebeln", value: "Onion" },
+                {
+                  id: "topping-onion",
+                  label: t.configuration.toppings.items["Onion"],
+                  value: "Onion",
+                },
                 {
                   id: "topping-mushrooms",
-                  label: "Champignons",
+                  label: t.configuration.toppings.items["Mushrooms"],
                   value: "Mushrooms",
                 },
                 {
                   id: "topping-pepperoni",
-                  label: "Peperoni",
+                  label: t.configuration.toppings.items["Pepperoni"],
                   value: "Pepperoni",
                 },
-                { id: "topping-olives", label: "Oliven", value: "Olives" },
+                {
+                  id: "topping-olives",
+                  label: t.configuration.toppings.items["Olives"],
+                  value: "Olives",
+                },
                 {
                   id: "topping-artichokes",
-                  label: "Artischocken",
+                  label: t.configuration.toppings.items["Artichokes"],
                   value: "Artichokes",
                 },
-                { id: "topping-garlic", label: "Knoblauch", value: "Garlic" },
+                {
+                  id: "topping-garlic",
+                  label: t.configuration.toppings.items["Garlic"],
+                  value: "Garlic",
+                },
                 {
                   id: "topping-cherry-tomatoes",
-                  label: "Kirschtomaten",
+                  label: t.configuration.toppings.items["Cherry Tomatoes"],
                   value: "Cherry Tomatoes",
                 },
-                { id: "topping-arugula", label: "Rucola", value: "Arugula" },
+                {
+                  id: "topping-arugula",
+                  label: t.configuration.toppings.items["Arugula"],
+                  value: "Arugula",
+                },
                 {
                   id: "topping-pineapple",
-                  label: "Ananas",
+                  label: t.configuration.toppings.items["Pineapple"],
                   value: "Pineapple",
                 },
               ].map((topping) => (
@@ -549,16 +750,20 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
           {/* Cheeses */}
           <div className="space-y-2">
             <h4 className="text-sm font-semibold text-gray-700 border-b pb-1">
-              Käse
+              {t.configuration.toppings.categories.cheese}
             </h4>
             <div className="grid grid-cols-2 gap-4">
               {[
                 {
                   id: "topping-mascarpone",
-                  label: "Mascarpone",
+                  label: t.configuration.toppings.items["Mascarpone"],
                   value: "Mascarpone",
                 },
-                { id: "topping-burrata", label: "Burrata", value: "Burrata" },
+                {
+                  id: "topping-burrata",
+                  label: t.configuration.toppings.items["Burrata"],
+                  value: "Burrata",
+                },
               ].map((topping) => (
                 <div key={topping.id} className="flex items-center space-x-2">
                   <Checkbox
@@ -586,22 +791,31 @@ const ConfigurationForm: React.FC<ConfigurationFormProps> = ({
         </div>
       </div>
 
-      {/* Generate Recipe Button */}
-      <div className="mt-8 flex justify-center">
+      {isPastStartTime && (
+        <div className="text-center mb-4">
+          <p className="text-red-600 font-medium">
+            {t.configuration.pastStartTimeWarning}
+          </p>
+        </div>
+      )}
+
+      <div className="flex justify-center mt-8">
         <button
-          onClick={() => onConfigChange(config)}
+          onClick={onGenerateRecipe}
           className="w-full bg-orange-600 text-white hover:bg-orange-600/90 h-12 rounded-md px-4 py-2 flex items-center justify-center gap-2 font-medium"
           disabled={isGenerating}
         >
           {isGenerating ? (
             <>
               <Loader2 className="h-5 w-5 animate-spin" />
-              <span className="text-gray-200">Rezept wird generiert...</span>
+              <span className="text-gray-200">
+                {t.configuration.generateButton.generating}
+              </span>
             </>
           ) : (
             <>
               <FileText className="h-5 w-5" />
-              <span>Rezept generieren</span>
+              <span>{t.configuration.generateButton.default}</span>
             </>
           )}
         </button>

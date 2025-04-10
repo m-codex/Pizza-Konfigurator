@@ -22,37 +22,61 @@ import {
   cmToInches,
   ovenSizeToInches,
 } from "../lib/unitConversions";
+import { getTranslation, Language } from "../lib/i18n";
 
 interface ConfigSummaryProps {
   config: PizzaConfiguration;
   onEditClick: () => void;
   isMetric?: boolean;
+  language?: Language;
 }
 
 const ConfigSummary: React.FC<ConfigSummaryProps> = ({
   config,
   onEditClick,
   isMetric = true,
+  language = "de",
 }) => {
+  const t = getTranslation(language);
+
   // Helper function to format the date
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString("de-DE", {
+    const locale = language === "de" ? "de-DE" : "en-US";
+    return date.toLocaleDateString(locale, {
       year: "numeric",
       month: "long",
       day: "numeric",
     });
   };
 
+  // Helper function to format the time
+  const formatTime = (timeString: string) => {
+    if (language === "de") {
+      return `${timeString} Uhr`;
+    } else {
+      // Convert 24h format to 12h format with AM/PM
+      const [hours, minutes] = timeString.split(":");
+      const hour = parseInt(hours, 10);
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const hour12 = hour % 12 || 12; // Convert 0 to 12
+      return `${hour12}:${minutes} ${ampm}`;
+    }
+  };
+
   // Translate preparation time to German
   const translatePreparationTime = (prepTime: string) => {
     switch (prepTime) {
       case "Predough a day before":
-        return "Vorteig am Tag zuvor";
+        return language === "de"
+          ? "Vorteig am Tag zuvor"
+          : "Pre-dough a day before";
       case "8h before Eating Time":
-        return "8 Stunden vor dem Essen";
+        return language === "de"
+          ? "8 Stunden vor dem Essen"
+          : "8 hours before eating";
       case "Without Predough":
-        return "Ohne Vorteig";
+        return language === "de" ? "Ohne Vorteig" : "Without pre-dough";
       default:
         return prepTime;
     }
@@ -63,7 +87,7 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
     // Extract the diameter and dough ball weight
     const parts = size.split(" ");
     if (parts.length >= 3) {
-      return `${parts[0]} (${parts[2].replace("Dough", "Teig")})`;
+      return `${parts[0]} (${parts[2].replace("Dough", language === "de" ? "Teig" : "Dough")})`;
     }
     return size;
   };
@@ -72,7 +96,7 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
     <Card className="bg-white shadow-sm mb-6">
       <CardContent className="p-4">
         <div className="flex justify-between items-center mb-3">
-          <h3 className="text-lg font-semibold">Deine Konfiguration</h3>
+          <h3 className="text-lg font-semibold">{t.recipe.configuration}</h3>
           <Button
             variant="outline"
             size="sm"
@@ -87,7 +111,7 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
           {/* Pizza count and size */}
           <div className="flex items-start gap-2">
             <Pizza className="h-4 w-4 text-orange-600 flex-shrink-0" />
-            <span className="font-semibold">Pizzen:</span>
+            <span className="font-semibold">{t.configuration.pizzaCount}:</span>
             <span>
               {config.pizzaCount} x{" "}
               {isMetric
@@ -99,66 +123,92 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
           {/* Date and time */}
           <div className="flex items-start gap-2">
             <Clock className="h-4 w-4 text-orange-600 flex-shrink-0" />
-            <span className="font-semibold">Datum:</span>
+            <span className="font-semibold">
+              {t.configuration.eatingTime.date}:
+            </span>
             <span>
-              {formatDate(config.eatingDate)}, {config.eatingTime} Uhr
+              {formatDate(config.eatingDate)}, {formatTime(config.eatingTime)}
             </span>
           </div>
 
           {/* Preparation time */}
           <div className="flex items-start gap-2">
             <Timer className="h-4 w-4 text-orange-600 flex-shrink-0" />
-            <span className="font-semibold">Vorbereitung:</span>
+            <span className="font-semibold">
+              {t.configuration.preparation}:
+            </span>
             <span>{translatePreparationTime(config.preparationTime)}</span>
           </div>
 
           {/* Hydration */}
           <div className="flex items-start gap-2">
             <Droplet className="h-4 w-4 text-orange-600 flex-shrink-0" />
-            <span className="font-semibold">Hydration:</span>
+            <span className="font-semibold">{t.configuration.hydration}:</span>
             <span>{config.hydration}</span>
           </div>
 
           {/* Yeast type */}
           <div className="flex items-start gap-2">
             <Wheat className="h-4 w-4 text-orange-600 flex-shrink-0" />
-            <span className="font-semibold">Hefe:</span>
+            <span className="font-semibold">{t.configuration.yeastType}:</span>
             <span>
-              {config.yeastType === "Dry yeast" ? "Trockenhefe" : "Frischhefe"}
+              {config.yeastType === "Dry yeast"
+                ? language === "de"
+                  ? "Trockenhefe"
+                  : "Dry yeast"
+                : language === "de"
+                  ? "Frischhefe"
+                  : "Fresh yeast"}
             </span>
           </div>
 
           {/* Predough percentage */}
           <div className="flex items-start gap-2">
             <Percent className="h-4 w-4 text-orange-600 flex-shrink-0" />
-            <span className="font-semibold">Vorteiganteil:</span>
+            <span className="font-semibold">
+              {t.configuration.predoughPercentage}:
+            </span>
             <span>{config.predoughPercentage}</span>
           </div>
 
           {/* Kneading method */}
           <div className="flex items-start gap-2">
             <Hand className="h-4 w-4 text-orange-600 flex-shrink-0" />
-            <span className="font-semibold">Knetmethode:</span>
+            <span className="font-semibold">
+              {t.configuration.kneadingMethod}:
+            </span>
             <span>
               {config.kneadingMethod === "By Hand"
-                ? "Von Hand"
-                : "Mit Maschine"}
+                ? language === "de"
+                  ? "Von Hand"
+                  : "By Hand"
+                : language === "de"
+                  ? "Mit Maschine"
+                  : "With Machine"}
             </span>
           </div>
 
           {/* Oven type */}
           <div className="flex items-start gap-2">
             <FlameKindling className="h-4 w-4 text-orange-600 flex-shrink-0" />
-            <span className="font-semibold">Ofentyp:</span>
+            <span className="font-semibold">{t.configuration.ovenType}:</span>
             <span>
               {config.ovenType === "Kitchen oven"
-                ? "Backofen"
+                ? language === "de"
+                  ? "Backofen"
+                  : "Kitchen oven"
                 : config.ovenType === "Gasgrill"
-                  ? "Gasgrill mit Deckel"
+                  ? language === "de"
+                    ? "Gasgrill mit Deckel"
+                    : "Gas grill with lid"
                   : config.ovenType === "Pizza wood oven stone"
-                    ? "Pizzaholzofen aus Stein"
+                    ? language === "de"
+                      ? "Pizzaholzofen aus Stein"
+                      : "Pizza wood oven (stone)"
                     : config.ovenType === "Pizza wood oven stainless steel"
-                      ? "Pizzaholzofen aus Edelstahl"
+                      ? language === "de"
+                        ? "Pizzaholzofen aus Edelstahl"
+                        : "Pizza wood oven (stainless steel)"
                       : config.ovenType}
             </span>
           </div>
@@ -166,7 +216,9 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
           {/* Max temperature */}
           <div className="flex items-start gap-2">
             <Thermometer className="h-4 w-4 text-orange-600 flex-shrink-0" />
-            <span className="font-semibold">Max. Temperatur:</span>
+            <span className="font-semibold">
+              {t.configuration.maxTemperature}:
+            </span>
             <span>
               {isMetric
                 ? config.maxTemperature
@@ -177,20 +229,28 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
           {/* Pizza surface */}
           <div className="flex items-start gap-2">
             <Layers className="h-4 w-4 text-orange-600 flex-shrink-0" />
-            <span className="font-semibold">Pizzaunterlage:</span>
+            <span className="font-semibold">
+              {t.configuration.pizzaSurface}:
+            </span>
             <span>
               {config.pizzaSurface === "Pizza stone"
-                ? "Pizzastein"
+                ? language === "de"
+                  ? "Pizzastein"
+                  : "Pizza stone"
                 : config.pizzaSurface === "Pizza steel"
-                  ? "Pizzastahl"
-                  : "Nicht notwendig"}
+                  ? language === "de"
+                    ? "Pizzastahl"
+                    : "Pizza steel"
+                  : language === "de"
+                    ? "Nicht notwendig"
+                    : "Not necessary"}
             </span>
           </div>
 
           {/* Oven size */}
           <div className="flex items-start gap-2">
             <Ruler className="h-4 w-4 text-orange-600 flex-shrink-0" />
-            <span className="font-semibold">Ofengröße:</span>
+            <span className="font-semibold">{t.configuration.ovenSize}:</span>
             <span>
               {isMetric ? config.ovenSize : ovenSizeToInches(config.ovenSize)}
             </span>
@@ -200,43 +260,49 @@ const ConfigSummary: React.FC<ConfigSummaryProps> = ({
           {config.toppings.length > 0 && (
             <div className="flex items-start gap-2">
               <Utensils className="h-4 w-4 text-orange-600 flex-shrink-0" />
-              <span className="font-semibold">Belag:</span>
+              <span className="font-semibold">
+                {t.configuration.toppings.title}:
+              </span>
               <span>
                 {config.toppings
                   .map((topping) => {
-                    switch (topping) {
-                      case "Ham":
-                        return "Schinken";
-                      case "Salami":
-                        return "Salami";
-                      case "Hot Salami":
-                        return "Scharfe Salami";
-                      case "Raw Ham":
-                        return "Rohschinken";
-                      case "Onion":
-                        return "Zwiebeln";
-                      case "Mushrooms":
-                        return "Champignons";
-                      case "Pepperoni":
-                        return "Peperoni";
-                      case "Pineapple":
-                        return "Ananas";
-                      case "Olives":
-                        return "Oliven";
-                      case "Artichokes":
-                        return "Artischocken";
-                      case "Mascarpone":
-                        return "Mascarpone";
-                      case "Burrata":
-                        return "Burrata";
-                      case "Garlic":
-                        return "Knoblauch";
-                      case "Cherry Tomatoes":
-                        return "Kirschtomaten";
-                      case "Arugula":
-                        return "Rucola";
-                      default:
-                        return topping;
+                    if (language === "de") {
+                      switch (topping) {
+                        case "Ham":
+                          return "Schinken";
+                        case "Salami":
+                          return "Salami";
+                        case "Hot Salami":
+                          return "Scharfe Salami";
+                        case "Raw Ham":
+                          return "Rohschinken";
+                        case "Onion":
+                          return "Zwiebeln";
+                        case "Mushrooms":
+                          return "Champignons";
+                        case "Pepperoni":
+                          return "Peperoni";
+                        case "Pineapple":
+                          return "Ananas";
+                        case "Olives":
+                          return "Oliven";
+                        case "Artichokes":
+                          return "Artischocken";
+                        case "Mascarpone":
+                          return "Mascarpone";
+                        case "Burrata":
+                          return "Burrata";
+                        case "Garlic":
+                          return "Knoblauch";
+                        case "Cherry Tomatoes":
+                          return "Kirschtomaten";
+                        case "Arugula":
+                          return "Rucola";
+                        default:
+                          return topping;
+                      }
+                    } else {
+                      return topping; // English names are already in the correct format
                     }
                   })
                   .join(", ")}

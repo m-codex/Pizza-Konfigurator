@@ -5,7 +5,7 @@ import ShoppingList from "./ShoppingList";
 import ActionButtons from "./ActionButtons";
 import ConfigSummary from "./ConfigSummary";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
-import { Pizza, ShoppingBasket, FileText } from "lucide-react";
+import { Pizza, ShoppingBasket, FileText, Loader2 } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "./ui/select";
 import { convertMeasurementsInText, cmToInches } from "../lib/unitConversions";
+import { getTranslation, Language, Translations } from "../lib/i18n";
 
 interface ShoppingListItem {
   name: string;
@@ -33,8 +34,21 @@ interface Recipe {
   totalTime: string;
 }
 
-const PizzaConfigurator: React.FC = () => {
+interface PizzaConfiguratorProps {
+  language?: Language;
+}
+
+const PizzaConfigurator: React.FC<PizzaConfiguratorProps> = ({
+  language: initialLanguage = "de",
+}) => {
+  const [language, setLanguage] = useState<Language>(initialLanguage);
+
+  // Update language when initialLanguage prop changes
+  React.useEffect(() => {
+    setLanguage(initialLanguage);
+  }, [initialLanguage]);
   const [unitSystem, setUnitSystem] = useState<"metric" | "us">("metric");
+  const t = getTranslation(language);
   const [config, setConfig] = useState<PizzaConfiguration>({
     pizzaCount: 8,
     pizzaSize: "30-32cm (280g Dough ball)",
@@ -44,7 +58,7 @@ const PizzaConfigurator: React.FC = () => {
     predoughPercentage: "40%",
     kneadingMethod: "By Hand",
     ovenType: "Pizza wood oven stainless steel",
-    maxTemperature: "über 350°C",
+    maxTemperature: "> 350°C",
     pizzaSurface: "Not necessary",
     ovenSize: "60x60cm",
     toppings: [],
@@ -109,8 +123,12 @@ const PizzaConfigurator: React.FC = () => {
       const pizzaDiameter = getBallSizeFromConfig(config.pizzaSize).diameter;
       const displayDiameter =
         unitSystem === "metric" ? pizzaDiameter : cmToInches(pizzaDiameter);
+      const titleText =
+        language === "de"
+          ? `Pizza Rezept für ${config.pizzaCount} Pizzen mit ${displayDiameter}`
+          : `Pizza Recipe for ${config.pizzaCount} Pizzas with ${displayDiameter}`;
       const generatedRecipe = {
-        title: `Pizza Rezept für ${config.pizzaCount} Pizzen mit ${displayDiameter}`,
+        title: titleText,
         preDoughSteps,
         preDoughDate,
         mainDoughSteps,
@@ -166,18 +184,38 @@ const PizzaConfigurator: React.FC = () => {
     checkIfStartTimeIsPast(config);
   }, []);
 
-  // Update recipe title when unit system changes
+  // Update recipe when unit system or language changes
   React.useEffect(() => {
     if (recipe) {
+      // Regenerate the recipe with the new language
+      const { preDoughDate, mainDoughDate, bakingDate, eatingDate } =
+        calculateDates(config);
+
+      // Split preparation steps into pre-dough and main dough steps
+      const { preDoughSteps, mainDoughSteps } = splitPreparationSteps(config);
+
+      // Generate recipe based on configuration
       const pizzaDiameter = getBallSizeFromConfig(config.pizzaSize).diameter;
       const displayDiameter =
         unitSystem === "metric" ? pizzaDiameter : cmToInches(pizzaDiameter);
+      const titleText =
+        language === "de"
+          ? `Pizza Rezept für ${config.pizzaCount} Pizzen mit ${displayDiameter}`
+          : `Pizza Recipe for ${config.pizzaCount} Pizzas with ${displayDiameter}`;
+
       setRecipe({
         ...recipe,
-        title: `Pizza Rezept für ${config.pizzaCount} Pizzen mit ${displayDiameter}`,
+        title: titleText,
+        preDoughSteps,
+        preDoughDate,
+        mainDoughSteps,
+        mainDoughDate,
+        bakingInstructions: generateBakingInstructions(config),
+        bakingDate,
+        eatingDate,
       });
     }
-  }, [unitSystem]);
+  }, [unitSystem, language, config.pizzaCount, config.pizzaSize]);
 
   // Calculate flour amount based on total dough weight and hydration
   const calculateFlourAmount = (
@@ -225,7 +263,7 @@ const PizzaConfigurator: React.FC = () => {
   const calculatePreheatTime = (
     ovenType: string,
     ovenSize: string,
-  ): { minutes: number; formatted: string } => {
+  ): { minutesrounded: number; formatted: string } => {
     let baseMinutes = 0;
 
     // Base preheating time by oven type
@@ -279,26 +317,51 @@ const PizzaConfigurator: React.FC = () => {
 
     // Format a date to a readable string
     const formatDate = (date: Date): string => {
-      const days = [
-        "Sonntag",
-        "Montag",
-        "Dienstag",
-        "Mittwoch",
-        "Donnerstag",
-        "Freitag",
-        "Samstag",
-      ];
+      const locale = language === "de" ? "de-DE" : "en-US";
+      const days =
+        language === "de"
+          ? [
+              "Sonntag",
+              "Montag",
+              "Dienstag",
+              "Mittwoch",
+              "Donnerstag",
+              "Freitag",
+              "Samstag",
+            ]
+          : [
+              "Sunday",
+              "Monday",
+              "Tuesday",
+              "Wednesday",
+              "Thursday",
+              "Friday",
+              "Saturday",
+            ];
       const day = days[date.getDay()];
-      const dateStr = date.toLocaleDateString("de-DE", {
+      const dateStr = date.toLocaleDateString(locale, {
         day: "2-digit",
         month: "2-digit",
         year: "numeric",
       });
-      const timeStr = date.toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-      return `${day}, ${dateStr}, ${timeStr} Uhr`;
+
+      // Format time based on locale
+      let timeStr;
+      if (language === "de") {
+        timeStr = date.toLocaleTimeString(locale, {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: false,
+        });
+        return `${day}, ${dateStr}, ${timeStr} Uhr`;
+      } else {
+        timeStr = date.toLocaleTimeString(locale, {
+          hour: "numeric",
+          minute: "2-digit",
+          hour12: true,
+        });
+        return `${day}, ${dateStr}, ${timeStr}`;
+      }
     };
 
     // Calculate baking start time (60 minutes before eating)
@@ -354,18 +417,25 @@ const PizzaConfigurator: React.FC = () => {
     let mainDoughSteps: string[] = [];
 
     if (config.preparationTime === "Predough a day before") {
-      // Find the index of "Ein Tag Später..." or similar transition step
-      const transitionIndex = allSteps.findIndex(
-        (step) =>
-          step.includes("Ein Tag Später") ||
-          step.includes("nächsten Tag") ||
-          step.includes("Kühlschrank nehmen"),
+      // Find the index of transition step based on language
+      const transitionKeywords =
+        language === "de"
+          ? ["Ein Tag Später", "nächsten Tag", "Kühlschrank nehmen"]
+          : ["next day", "refrigerator", "take the bowl"];
+
+      const transitionIndex = allSteps.findIndex((step) =>
+        transitionKeywords.some((keyword) => step.includes(keyword)),
       );
 
       if (transitionIndex !== -1) {
         // Find the index of the step that puts the dough in the refrigerator
+        const refrigeratorKeywords =
+          language === "de"
+            ? ["Kühlschrank geben"]
+            : ["refrigerator", "place in the refrigerator"];
+
         const refrigeratorIndex = allSteps.findIndex((step) =>
-          step.includes("Kühlschrank geben"),
+          refrigeratorKeywords.some((keyword) => step.includes(keyword)),
         );
 
         // Split the steps at the transition point, ensuring the refrigerator step is included in preDoughSteps
@@ -383,9 +453,14 @@ const PizzaConfigurator: React.FC = () => {
         mainDoughSteps = allSteps.slice(splitPoint);
       }
     } else if (config.preparationTime === "8h before Eating Time") {
-      // For 8h preparation, find the step that mentions "6h zugedeckt"
+      // For 8h preparation, find the step that mentions rest time
+      const restKeywords =
+        language === "de"
+          ? ["6h zugedeckt", "stehen lassen"]
+          : ["6h covered", "let it rest"];
+
       const restStepIndex = allSteps.findIndex((step) =>
-        step.includes("6h zugedeckt"),
+        restKeywords.some((keyword) => step.includes(keyword)),
       );
 
       if (restStepIndex !== -1) {
@@ -426,6 +501,13 @@ const PizzaConfigurator: React.FC = () => {
         ? 0
         : parseFloat(config.predoughPercentage.replace("%", "")) / 100;
 
+    // Get translations
+    const t = getTranslation(language);
+    const yeastTypeTranslated =
+      config.yeastType === "Dry yeast"
+        ? t.configuration.selectOptions.yeastType.dry
+        : t.configuration.selectOptions.yeastType.fresh;
+
     if (config.preparationTime === "Predough a day before") {
       // Calculate target predough weight based on total dough weight and percentage
       const targetPredoughWeight = Math.round(
@@ -452,36 +534,68 @@ const PizzaConfigurator: React.FC = () => {
       const mainDoughBowlSize = calculateBowlSize(totalWeight);
 
       return [
-        `Am Vortag ${predoughWeight}g Vorteig (Poolish) herstellen`,
-        `Dazu eine Schüssel mit einem Fassungsvermögen von mind. ${predoughBowlSize}L nehmen`,
-        `${predoughWater}ml Wasser hineingeben`,
-        `Dann ${yeastAmount}g ${config.yeastType === "Dry yeast" ? "Trockenhefe" : "Frischhefe"} dazu geben und kurz umrühren`,
-        `Danach ${honeyAmount}g Honig beimischen`,
-        `Zum Schluss ${predoughFlour}g Mehl hinein geben und mit einem Löffel mischen bis kein Mehl mehr zusehen ist`,
-        "Dann 1h zugedeckt bei Zimmertemperatur stehen lassen",
-        "Danach zugedeckt in den Kühlschrank geben",
-        "Am nächsten Tag 3h vor dem Backen die Schüssel mit dem Vorteig (Poolish) aus dem Kühlschrank nehmen",
+        t.recipe.steps.predough.makePredough.replace(
+          "{weight}",
+          predoughWeight.toString(),
+        ),
+        t.recipe.steps.predough.takeBowl.replace(
+          "{size}",
+          predoughBowlSize.toString(),
+        ),
+        t.recipe.steps.predough.addWater.replace(
+          "{amount}",
+          predoughWater.toString(),
+        ),
+        t.recipe.steps.predough.addYeast
+          .replace("{amount}", yeastAmount.toString())
+          .replace("{type}", yeastTypeTranslated),
+        t.recipe.steps.predough.addHoney.replace(
+          "{amount}",
+          honeyAmount.toString(),
+        ),
+        t.recipe.steps.predough.addFlour.replace(
+          "{amount}",
+          predoughFlour.toString(),
+        ),
+        t.recipe.steps.predough.letRest.replace("{time}", "1"),
+        t.recipe.steps.predough.putInFridge,
+        t.recipe.steps.predough.takeFromFridge,
         config.kneadingMethod === "With Machine"
-          ? "Küchenmaschine mit Knethaken vorbereiten"
+          ? t.recipe.steps.maindough.prepareMixer
           : null,
         config.kneadingMethod === "With Machine"
-          ? "Den Vorteig (Poolish) in den Behälter der Küchemaschine geben"
-          : `Eine neue Schüssel mit Fassungsvermögen von mind. ${mainDoughBowlSize}L nehmen und den Vorteig (Poolish) dort hineingeben`,
+          ? t.recipe.steps.maindough.addPredough
+          : t.recipe.steps.maindough.addWater.replace(
+              "{amount}",
+              mainDoughWater.toString(),
+            ),
         config.kneadingMethod === "With Machine"
-          ? `${mainDoughWater}ml Wasser langsam Esslöfelweise hinzugeben`
-          : `${mainDoughWater}ml Wasser hinzugeben`,
-        `Dann ${saltAmount}g Salz hinzugeben und umrühren`,
-        config.kneadingMethod === "With Machine" ? "Olivenöl zugeben" : null,
-        `Danach ${mainDoughFlour}g Mehl dazugeben und von Hand vermischen`,
+          ? t.recipe.steps.maindough.addWater.replace(
+              "{amount}",
+              mainDoughWater.toString(),
+            )
+          : t.recipe.steps.maindough.addSalt.replace(
+              "{amount}",
+              saltAmount.toString(),
+            ),
         config.kneadingMethod === "With Machine"
-          ? "Teig ca. 10min kneten lassen"
-          : "Teig auf die Arbeitsplatte geben und Teig ca. 15-20min von Hand kneten",
-        "Gekneteter Teig auf Arbeitsplatte zu einer Kugel formen und mit Olivenöl leicht einreiben",
-        "Dann mit einer Schüssel zudecken für 15min stehen lassen",
-        "Dann Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
-        "Wieder zu einer Kugel formen und zugedeckt für 1h stehen lassen",
-        `Teig in ${config.pizzaCount} Teiglinge à ${getBallSizeFromConfig(config.pizzaSize).size} teilen und kleine Kugeln formen`,
-        "Kugeln in einem geschlossenen, mit Olivenöl eingeriebenen Behälter, geben",
+          ? t.recipe.steps.maindough.addOil
+          : null,
+        t.recipe.steps.maindough.addFlour.replace(
+          "{amount}",
+          mainDoughFlour.toString(),
+        ),
+        config.kneadingMethod === "With Machine"
+          ? t.recipe.steps.maindough.kneadByMachine
+          : t.recipe.steps.maindough.kneadByHand,
+        t.recipe.steps.maindough.formBall,
+        t.recipe.steps.maindough.coverAndRest,
+        t.recipe.steps.maindough.foldDough,
+        t.recipe.steps.maindough.formBallAgain,
+        t.recipe.steps.maindough.divideDough
+          .replace("{count}", config.pizzaCount.toString())
+          .replace("{size}", getBallSizeFromConfig(config.pizzaSize).size),
+        t.recipe.steps.maindough.putInContainer,
       ]
         .filter((item) => item !== null)
         .flat();
@@ -511,34 +625,65 @@ const PizzaConfigurator: React.FC = () => {
       const mainDoughBowlSize = calculateBowlSize(totalWeight);
 
       return [
-        `Ca. 8h vor dem Backen ${predoughWeight}g Vorteig (Poolish) herstellen`,
-        `Eine Schüssel mit einem Fassungsvermögen von mind. ${predoughBowlSize}L nehmen`,
-        `${predoughWater}ml Wasser hineingeben`,
-        `Dann ${yeastAmount}g ${config.yeastType === "Dry yeast" ? "Trockenhefe" : "Frischhefe"} dazu geben und kurz umrühren`,
-        `Danach ${honeyAmount}g Honig beimischen`,
-        `Zum Schluss ${predoughFlour}g Mehl hinein geben und mit einem Löffel mischen bis kein Mehl mehr zusehen ist`,
-        "Dann ca. 6h zugedeckt bei Zimmertemperatur stehen lassen",
+        language === "de"
+          ? `Ca. 8h vor dem Backen ${predoughWeight}g Vorteig (Poolish) herstellen`
+          : `About 8h before baking, make ${predoughWeight}g of pre-dough (poolish)`,
+        t.recipe.steps.predough.takeBowl.replace(
+          "{size}",
+          predoughBowlSize.toString(),
+        ),
+        t.recipe.steps.predough.addWater.replace(
+          "{amount}",
+          predoughWater.toString(),
+        ),
+        t.recipe.steps.predough.addYeast
+          .replace("{amount}", yeastAmount.toString())
+          .replace("{type}", yeastTypeTranslated),
+        t.recipe.steps.predough.addHoney.replace(
+          "{amount}",
+          honeyAmount.toString(),
+        ),
+        t.recipe.steps.predough.addFlour.replace(
+          "{amount}",
+          predoughFlour.toString(),
+        ),
+        t.recipe.steps.predough.letRest.replace("{time}", "6"),
         config.kneadingMethod === "With Machine"
-          ? "Küchenmaschine mit Knethaken vorbereiten"
+          ? t.recipe.steps.maindough.prepareMixer
           : null,
         config.kneadingMethod === "With Machine"
-          ? "Den Vorteig (Poolish) in den Behälter der Küchemaschine geben"
-          : `Eine neue Schüssel mit Fassungsvermögen von mind. ${mainDoughBowlSize}L nehmen und den Vorteig (Poolish) dort hineingeben`,
+          ? t.recipe.steps.maindough.addPredough
+          : t.recipe.steps.maindough.addWater.replace(
+              "{amount}",
+              mainDoughWater.toString(),
+            ),
         config.kneadingMethod === "With Machine"
-          ? `${mainDoughWater}ml Wasser langsam Esslöfelweise hinzugeben`
-          : `${mainDoughWater}ml Wasser hinzugeben`,
-        `Dann ${saltAmount}g Salz hinzugeben und umrühren`,
-        config.kneadingMethod === "With Machine" ? "Olivenöl zugeben" : null,
-        `Danach ${mainDoughFlour}g Mehl dazugeben und von Hand vermischen`,
+          ? t.recipe.steps.maindough.addWater.replace(
+              "{amount}",
+              mainDoughWater.toString(),
+            )
+          : t.recipe.steps.maindough.addSalt.replace(
+              "{amount}",
+              saltAmount.toString(),
+            ),
         config.kneadingMethod === "With Machine"
-          ? "Teig ca. 10min kneten lassen"
-          : "Teig auf die Arbeitsplatte geben und Teig ca. 15-20min von Hand kneten",
-        "Gekneteter Teig auf Arbeitsplatte zu einer Kugel formen und mit Olivenöl leicht einreiben",
-        "Dann mit einer Schüssel zudecken für 15min stehen lassen",
-        "Dann Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
-        "Wieder zu einer Kugel formen und zugedeckt für 1h stehen lassen",
-        `Teig in ${config.pizzaCount} Teiglinge à ${getBallSizeFromConfig(config.pizzaSize).size} teilen und kleine Kugeln formen`,
-        "Kugeln in einem geschlossenen, mit Olivenöl eingeriebenen Behälter, geben",
+          ? t.recipe.steps.maindough.addOil
+          : null,
+        t.recipe.steps.maindough.addFlour.replace(
+          "{amount}",
+          mainDoughFlour.toString(),
+        ),
+        config.kneadingMethod === "With Machine"
+          ? t.recipe.steps.maindough.kneadByMachine
+          : t.recipe.steps.maindough.kneadByHand,
+        t.recipe.steps.maindough.formBall,
+        t.recipe.steps.maindough.coverAndRest,
+        t.recipe.steps.maindough.foldDough,
+        t.recipe.steps.maindough.formBallAgain,
+        t.recipe.steps.maindough.divideDough
+          .replace("{count}", config.pizzaCount.toString())
+          .replace("{size}", getBallSizeFromConfig(config.pizzaSize).size),
+        t.recipe.steps.maindough.putInContainer,
       ]
         .filter((item) => item !== null)
         .flat();
@@ -547,22 +692,40 @@ const PizzaConfigurator: React.FC = () => {
       const totalBowlSize = calculateBowlSize(totalDoughWeight);
 
       return [
-        `Eine Schüssel mit einem Fassungsvermögen von mind. ${totalBowlSize}L nehmen`,
-        `${waterAmount}ml Wasser hineingeben`,
-        `Dann ${yeastAmount}g ${config.yeastType === "Dry yeast" ? "Trockenhefe" : "Frischhefe"} dazu geben und kurz umrühren`,
-        `Danach ${honeyAmount}g Honig beimischen und 10min stehen lassen`,
-        `Dann ${flourAmount}g Mehl dazugeben`,
-        `Als nächstes ${saltAmount}g Salz hinzugeben und von Hand vermischen`,
-        config.kneadingMethod === "With Machine" ? "Olivenöl zugeben" : null,
+        t.recipe.steps.predough.takeBowl.replace(
+          "{size}",
+          totalBowlSize.toString(),
+        ),
+        t.recipe.steps.predough.addWater.replace(
+          "{amount}",
+          waterAmount.toString(),
+        ),
+        t.recipe.steps.predough.addYeast
+          .replace("{amount}", yeastAmount.toString())
+          .replace("{type}", yeastTypeTranslated),
+        language === "de"
+          ? `Danach ${honeyAmount}g Honig beimischen und 10min stehen lassen`
+          : `Next, add ${honeyAmount}g of honey and let it rest for 10 minutes`,
+        language === "de"
+          ? `Dann ${flourAmount}g Mehl dazugeben`
+          : `Then add ${flourAmount}g of flour`,
+        language === "de"
+          ? `Als nächstes ${saltAmount}g Salz hinzugeben und von Hand vermischen`
+          : `Next, add ${saltAmount}g of salt and mix by hand`,
         config.kneadingMethod === "With Machine"
-          ? "Teig ca. 10min kneten lassen"
-          : "Teig auf die Arbeitsplatte geben und Teig ca. 15-20min von Hand kneten",
-        "Gekneteter Teig auf Arbeitsplatte zu einer Kugel formen und mit Olivenöl leicht einreiben",
-        "Dann mit einer Schüssel zudecken für 15min stehen lassen",
-        "Dann Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
-        "Wieder zu einer Kugel formen und zugedeckt für 1h stehen lassen",
-        `Teig in ${config.pizzaCount} Teiglinge à ${getBallSizeFromConfig(config.pizzaSize).size} teilen und kleine Kugeln formen`,
-        "Kugeln in einem geschlossenen, mit Olivenöl eingeriebenen Behälter, geben",
+          ? t.recipe.steps.maindough.addOil
+          : null,
+        config.kneadingMethod === "With Machine"
+          ? t.recipe.steps.maindough.kneadByMachine
+          : t.recipe.steps.maindough.kneadByHand,
+        t.recipe.steps.maindough.formBall,
+        t.recipe.steps.maindough.coverAndRest,
+        t.recipe.steps.maindough.foldDough,
+        t.recipe.steps.maindough.formBallAgain,
+        t.recipe.steps.maindough.divideDough
+          .replace("{count}", config.pizzaCount.toString())
+          .replace("{size}", getBallSizeFromConfig(config.pizzaSize).size),
+        t.recipe.steps.maindough.putInContainer,
       ]
         .filter((item) => item !== null)
         .flat();
@@ -586,23 +749,61 @@ const PizzaConfigurator: React.FC = () => {
     );
 
     // Format the preheat start time
-    const preheatTimeStr = preheatStartTime.toLocaleTimeString("de-DE", {
-      hour: "2-digit",
+    const locale = language === "de" ? "de-DE" : "en-US";
+    const preheatTimeStr = preheatStartTime.toLocaleTimeString(locale, {
+      hour: language === "de" ? "2-digit" : "numeric",
       minute: "2-digit",
+      hour12: language === "en",
     });
 
-    return `Ofen ca. ${preheatTime.formatted} vor dem Backen aufheizen (um ${preheatTimeStr} Uhr)\nPizzakugel von Hand zu einem Pizzaboden formen und Pizza kurz vor dem Backen belegen\nTemperatur von Ofen und ${config.pizzaSurface === "Pizza stone" ? "Stein" : config.pizzaSurface === "Pizza steel" ? "Stahl" : "Oberfläche"} prüfen. Wenn beides bei ${config.maxTemperature} liegt Pizza für ca. ${bakingTime}min backen`;
+    // Get translations
+    const t = getTranslation(language);
+
+    // Determine surface name based on language
+    let surfaceName = "";
+    if (config.pizzaSurface === "Pizza stone") {
+      surfaceName = language === "de" ? "Stein" : "stone";
+    } else if (config.pizzaSurface === "Pizza steel") {
+      surfaceName = language === "de" ? "Stahl" : "steel";
+    } else {
+      surfaceName = language === "de" ? "Oberfläche" : "surface";
+    }
+
+    // Build instructions using translation templates
+    const preheatInstruction = t.recipe.steps.baking.preheatOven
+      .replace("{time}", preheatTime.formatted)
+      .replace("{clockTime}", preheatTimeStr);
+
+    const formPizzaInstruction = t.recipe.steps.baking.formPizza;
+
+    const checkTempInstruction = t.recipe.steps.baking.checkTemperature
+      .replace("{surface}", surfaceName)
+      .replace("{temp}", config.maxTemperature)
+      .replace("{time}", bakingTime.toString());
+
+    return `${preheatInstruction}\n${formPizzaInstruction}\n${checkTempInstruction}`;
   };
 
   const calculateTotalTime = (config: PizzaConfiguration): string => {
-    if (config.preparationTime === "Predough a day before") {
-      return "24 Stunden und 30 Minuten";
-    } else if (config.preparationTime === "8h before Eating Time") {
-      return "8 Stunden und 30 Minuten";
-    } else if (config.preparationTime === "Without Predough") {
-      return "2 Stunden";
+    if (language === "de") {
+      if (config.preparationTime === "Predough a day before") {
+        return "24 Stunden und 30 Minuten";
+      } else if (config.preparationTime === "8h before Eating Time") {
+        return "8 Stunden und 30 Minuten";
+      } else if (config.preparationTime === "Without Predough") {
+        return "2 Stunden";
+      }
+      return "2 Stunden"; // Default fallback
+    } else {
+      if (config.preparationTime === "Predough a day before") {
+        return "24 hours and 30 minutes";
+      } else if (config.preparationTime === "8h before Eating Time") {
+        return "8 hours and 30 minutes";
+      } else if (config.preparationTime === "Without Predough") {
+        return "2 hours";
+      }
+      return "2 hours"; // Default fallback
     }
-    return "2 Stunden"; // Default fallback
   };
 
   const generateShoppingList = (
@@ -633,29 +834,38 @@ const PizzaConfigurator: React.FC = () => {
     const honeyDisplay = `${honeyAmount}g`;
     const oilAmount = `${config.pizzaCount * 10}ml`; // 10ml per pizza
 
+    // Get translations
+    const t = getTranslation(language);
+    const pieceText = t.shopping.items.piece;
+    const bunchText = t.shopping.items.bunch;
+    const cloveText = t.shopping.items.clove;
+
     const baseItems: ShoppingListItem[] = [
-      { name: "Mehl (Tipo 00)", amount: flourDisplay, checked: false },
+      { name: t.shopping.items.flour, amount: flourDisplay, checked: false },
       {
-        name: config.yeastType === "Dry yeast" ? "Trockenhefe" : "Frischhefe",
+        name:
+          config.yeastType === "Dry yeast"
+            ? t.shopping.items.dryYeast
+            : t.shopping.items.freshYeast,
         amount: yeastDisplay,
         checked: false,
       },
-      { name: "Salz", amount: saltDisplay, checked: false },
-      { name: "Olivenöl", amount: oilAmount, checked: false },
-      { name: "Honig", amount: honeyDisplay, checked: false },
+      { name: t.shopping.items.salt, amount: saltDisplay, checked: false },
+      { name: t.shopping.items.oliveOil, amount: oilAmount, checked: false },
+      { name: t.shopping.items.honey, amount: honeyDisplay, checked: false },
       {
-        name: "Tomatensoße",
+        name: t.shopping.items.tomatoSauce,
         amount: `${config.pizzaCount * 75}ml`,
         checked: false,
       },
       {
-        name: "Mozzarella",
+        name: t.shopping.items.mozzarella,
         amount: `${config.pizzaCount * 100}g`,
         checked: false,
       },
       {
-        name: "Basilikum",
-        amount: `${config.pizzaCount / 8} Bund`,
+        name: t.shopping.items.basil,
+        amount: `${config.pizzaCount / 8} ${bunchText}`,
         checked: false,
       },
     ];
@@ -664,106 +874,106 @@ const PizzaConfigurator: React.FC = () => {
     const toppingItems: ShoppingListItem[] = [];
     if (config.toppings.includes("Ham")) {
       toppingItems.push({
-        name: "Schinken",
+        name: t.shopping.items.ham,
         amount: `${config.pizzaCount * 30}g`,
         checked: false,
       });
     }
     if (config.toppings.includes("Salami")) {
       toppingItems.push({
-        name: "Salami",
+        name: t.shopping.items.salami,
         amount: `${config.pizzaCount * 30}g`,
         checked: false,
       });
     }
     if (config.toppings.includes("Hot Salami")) {
       toppingItems.push({
-        name: "Scharfe Salami",
+        name: t.shopping.items.hotSalami,
         amount: `${config.pizzaCount * 30}g`,
         checked: false,
       });
     }
     if (config.toppings.includes("Raw Ham")) {
       toppingItems.push({
-        name: "Rohschinken",
+        name: t.shopping.items.rawHam,
         amount: `${config.pizzaCount * 30}g`,
         checked: false,
       });
     }
     if (config.toppings.includes("Onion")) {
       toppingItems.push({
-        name: "Zwiebeln",
-        amount: `${Math.ceil(config.pizzaCount / 4)} Stück`,
+        name: t.shopping.items.onions,
+        amount: `${Math.ceil(config.pizzaCount / 4)} ${pieceText}`,
         checked: false,
       });
     }
     if (config.toppings.includes("Mushrooms")) {
       toppingItems.push({
-        name: "Champignons",
+        name: t.shopping.items.mushrooms,
         amount: `${config.pizzaCount * 20}g`,
         checked: false,
       });
     }
     if (config.toppings.includes("Pepperoni")) {
       toppingItems.push({
-        name: "Peperoni",
-        amount: `${Math.ceil(config.pizzaCount / 4)} Stück`,
+        name: t.shopping.items.pepperoni,
+        amount: `${Math.ceil(config.pizzaCount / 4)} ${pieceText}`,
         checked: false,
       });
     }
     if (config.toppings.includes("Pineapple")) {
       toppingItems.push({
-        name: "Ananas Dose",
-        amount: `${Math.ceil(config.pizzaCount / 8)} Stück`,
+        name: t.shopping.items.pineapple,
+        amount: `${Math.ceil(config.pizzaCount / 8)} ${pieceText}`,
         checked: false,
       });
     }
     if (config.toppings.includes("Olives")) {
       toppingItems.push({
-        name: "Oliven",
+        name: t.shopping.items.olives,
         amount: `${config.pizzaCount * 15}g`,
         checked: false,
       });
     }
     if (config.toppings.includes("Artichokes")) {
       toppingItems.push({
-        name: "Artischocken",
-        amount: `${Math.ceil(config.pizzaCount / 4)} Stück`,
+        name: t.shopping.items.artichokes,
+        amount: `${Math.ceil(config.pizzaCount / 4)} ${pieceText}`,
         checked: false,
       });
     }
     if (config.toppings.includes("Mascarpone")) {
       toppingItems.push({
-        name: "Mascarpone",
+        name: t.shopping.items.mascarpone,
         amount: `${config.pizzaCount * 25}g`,
         checked: false,
       });
     }
     if (config.toppings.includes("Burrata")) {
       toppingItems.push({
-        name: "Burrata",
-        amount: `${Math.ceil(config.pizzaCount / 2)} Stück`,
+        name: t.shopping.items.burrata,
+        amount: `${Math.ceil(config.pizzaCount / 2)} ${pieceText}`,
         checked: false,
       });
     }
     if (config.toppings.includes("Garlic")) {
       toppingItems.push({
-        name: "Knoblauch",
-        amount: `${Math.ceil(config.pizzaCount / 4)} Zehen`,
+        name: t.shopping.items.garlic,
+        amount: `${Math.ceil(config.pizzaCount / 4)} ${cloveText}`,
         checked: false,
       });
     }
     if (config.toppings.includes("Cherry Tomatoes")) {
       toppingItems.push({
-        name: "Kirschtomaten",
+        name: t.shopping.items.cherryTomatoes,
         amount: `${config.pizzaCount * 30}g`,
         checked: false,
       });
     }
     if (config.toppings.includes("Arugula")) {
       toppingItems.push({
-        name: "Rucola",
-        amount: `${Math.ceil(config.pizzaCount / 4)} Bund`,
+        name: t.shopping.items.arugula,
+        amount: `${Math.ceil(config.pizzaCount / 4)} ${bunchText}`,
         checked: false,
       });
     }
@@ -772,100 +982,145 @@ const PizzaConfigurator: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-4 px-2 sm:px-4 bg-gray-50 min-h-screen">
-      <div className="flex justify-end mb-4">
-        <Select
-          value={unitSystem}
-          onValueChange={(value: "metric" | "us") => setUnitSystem(value)}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Einheit wählen" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="metric">Metrisch</SelectItem>
-            <SelectItem value="us">US Customary</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full h-full grid-cols-3 mb-4">
-          <TabsTrigger
-            value="configuration"
-            className="flex flex-col text-sm md:text-base md:flex-row items-center gap-2 p-2"
+    <div className="min-h-screen bg-gray-50">
+      <header className="text-white text-balance -mx-10 px-10 shadow-md bg-center bg-cover bg-[url('https://storage.googleapis.com/tempo-public-images/github%7C97963158-1743606315193-Pizzajpg')]">
+        <div className="flex flex-col py-6 gap-2 w-full mx-auto px-2 sm:px-4 bg-black/30">
+          <h1 className="text-4xl font-bold text-center">{t.home.title}</h1>
+          <p className="text-xl text-center mt-2 max-w-2xl mx-auto">
+            {t.home.subtitle}
+          </p>
+        </div>
+      </header>
+      <main className="container mx-auto px-1 sm:px-4 py-1">
+        <div className="container mx-auto py-4 px-2 sm:px-4 bg-gray-50">
+          <div className="flex justify-end gap-4 mb-4">
+            <Select
+              value={language}
+              onValueChange={(value: Language) => {
+                setLanguage(value);
+                // Force re-render of date/time components
+                document.documentElement.lang =
+                  value === "en" ? "en-US" : "de-DE";
+              }}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={t.common.language.label} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="de">{t.common.language.de}</SelectItem>
+                <SelectItem value="en">{t.common.language.en}</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select
+              value={unitSystem}
+              onValueChange={(value: "metric" | "us") => setUnitSystem(value)}
+            >
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder={t.common.unitSystem.label} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="metric">
+                  {t.common.unitSystem.metric}
+                </SelectItem>
+                <SelectItem value="us">{t.common.unitSystem.us}</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
           >
-            <Pizza className="h-5 w-5" />
-            Konfiguration
-          </TabsTrigger>
-          <TabsTrigger
-            value="recipe"
-            className="flex flex-col text-sm md:text-base md:flex-row items-center gap-2 p-2"
-            disabled={!recipe}
-          >
-            <FileText className="h-5 w-5" />
-            Rezept
-          </TabsTrigger>
-          <TabsTrigger
-            value="shopping"
-            className="flex flex-col text-sm md:text-base md:flex-row items-center gap-2 p-2"
-            disabled={!shoppingList.length}
-          >
-            <ShoppingBasket className="h-5 w-5" />
-            Einkaufsliste
-          </TabsTrigger>
-        </TabsList>
+            <TabsList className="grid w-full h-full grid-cols-3 mb-4">
+              <TabsTrigger
+                value="configuration"
+                className="flex flex-col text-sm md:text-base md:flex-row items-center gap-2 p-2"
+              >
+                <Pizza className="h-5 w-5" />
+                {t.tabs.configuration}
+              </TabsTrigger>
+              <TabsTrigger
+                value="recipe"
+                className="flex flex-col text-sm md:text-base md:flex-row items-center gap-2 p-2"
+                disabled={!recipe}
+              >
+                <FileText className="h-5 w-5" />
+                {t.tabs.recipe}
+              </TabsTrigger>
+              <TabsTrigger
+                value="shopping"
+                className="flex flex-col text-sm md:text-base md:flex-row items-center gap-2 p-2"
+                disabled={!shoppingList.length}
+              >
+                <ShoppingBasket className="h-5 w-5" />
+                {t.tabs.shopping}
+              </TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="configuration" className="space-y-8">
-          <ConfigurationForm
-            onConfigChange={handleGenerateRecipe}
-            initialConfig={config}
-            isMetric={unitSystem === "metric"}
-            isGenerating={isGenerating}
-          />
-
-          {isPastStartTime && (
-            <div className="text-center mb-4">
-              <p className="text-red-600 font-medium">
-                Achtung: Der Startzeitpunkt für die erste Aufgabe liegt in der
-                Vergangenheit. Bitte passe das Datum oder die Uhrzeit an.
-              </p>
-            </div>
-          )}
-        </TabsContent>
-
-        <TabsContent value="recipe" className="space-y-8">
-          {recipe && (
-            <>
-              <ConfigSummary
-                config={config}
-                onEditClick={() => setActiveTab("configuration")}
+            <TabsContent value="configuration" className="space-y-8">
+              <ConfigurationForm
+                onConfigChange={handleConfigChange}
+                onGenerateRecipe={handleGenerateRecipe}
+                initialConfig={config}
                 isMetric={unitSystem === "metric"}
+                isGenerating={isGenerating}
+                language={language}
+                isPastStartTime={isPastStartTime}
               />
+            </TabsContent>
 
-              <RecipeDisplay
-                recipe={recipe}
-                isDayBeforePreparation={
-                  config.preparationTime === "Predough a day before"
-                }
-                isMetric={unitSystem === "metric"}
-              />
-            </>
-          )}
-        </TabsContent>
+            <TabsContent value="recipe" className="space-y-8">
+              {recipe && (
+                <>
+                  <ConfigSummary
+                    config={config}
+                    onEditClick={() => setActiveTab("configuration")}
+                    isMetric={unitSystem === "metric"}
+                    language={language}
+                  />
 
-        <TabsContent value="shopping" className="space-y-8">
-          {shoppingList.length > 0 && (
-            <>
-              <ShoppingList
-                items={shoppingList}
-                onToggleItem={handleToggleShoppingItem}
-                pizzaCount={config.pizzaCount}
-                pizzaSize={getBallSizeFromConfig(config.pizzaSize).diameter}
-                isMetric={unitSystem === "metric"}
-              />
-            </>
-          )}
-        </TabsContent>
-      </Tabs>
+                  <RecipeDisplay
+                    recipe={recipe}
+                    isDayBeforePreparation={
+                      config.preparationTime === "Predough a day before"
+                    }
+                    isMetric={unitSystem === "metric"}
+                    language={language}
+                  />
+                </>
+              )}
+            </TabsContent>
+
+            <TabsContent value="shopping" className="space-y-8">
+              {shoppingList.length > 0 && (
+                <>
+                  <ShoppingList
+                    items={shoppingList}
+                    onToggleItem={handleToggleShoppingItem}
+                    pizzaCount={config.pizzaCount}
+                    pizzaSize={getBallSizeFromConfig(config.pizzaSize).diameter}
+                    isMetric={unitSystem === "metric"}
+                    language={language}
+                  />
+                </>
+              )}
+            </TabsContent>
+          </Tabs>
+        </div>
+      </main>
+      <footer className="bg-gray-800 text-white py-6 mt-12">
+        <div className="container mx-auto px-1 sm:px-4 text-center">
+          <p>
+            {t.home.footer.copyright.replace(
+              "{year}",
+              new Date().getFullYear().toString(),
+            )}
+          </p>
+          <p className="text-sm mt-2 text-gray-400">
+            {t.home.footer.description}
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };

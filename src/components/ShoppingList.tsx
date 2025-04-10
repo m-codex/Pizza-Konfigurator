@@ -11,6 +11,7 @@ import { Button } from "../components/ui/button";
 import { Check, ShoppingBasket, CircleCheck, EyeOff, Eye } from "lucide-react";
 import { cn } from "../lib/utils";
 import { convertAmount, cmToInches } from "../lib/unitConversions";
+import { getTranslation, Language } from "../lib/i18n";
 
 interface ShoppingListItem {
   name: string;
@@ -25,6 +26,7 @@ interface ShoppingListProps {
   pizzaCount?: number;
   pizzaSize?: string;
   isMetric?: boolean;
+  language?: Language;
 }
 
 const ShoppingList = ({
@@ -44,13 +46,17 @@ const ShoppingList = ({
   pizzaCount = 8,
   pizzaSize = "Ø30-32cm",
   isMetric = true,
+  language = "de",
 }: ShoppingListProps) => {
+  const t = getTranslation(language);
   const [hideCheckedItems, setHideCheckedItems] = useState(false);
 
   // Generate dynamic title if not provided
   const displayTitle =
     title ||
-    `Einkaufsliste für ${pizzaCount} Pizzen mit ${isMetric ? pizzaSize : cmToInches(pizzaSize)}`;
+    t.shopping.title
+      .replace("{count}", pizzaCount.toString())
+      .replace("{size}", isMetric ? pizzaSize : cmToInches(pizzaSize));
 
   // Filter items based on the hideCheckedItems state
   const displayedItems = hideCheckedItems
@@ -74,12 +80,18 @@ const ShoppingList = ({
             {hideCheckedItems ? (
               <>
                 <CircleCheck className="h-4 w-4" />
-                Einblenden ({checkedItemsCount})
+                {t.shopping.showChecked.replace(
+                  "{count}",
+                  checkedItemsCount.toString(),
+                )}
               </>
             ) : (
               <>
                 <CircleCheck className="h-4 w-4" />
-                Ausblenden ({checkedItemsCount})
+                {t.shopping.hideChecked.replace(
+                  "{count}",
+                  checkedItemsCount.toString(),
+                )}
               </>
             )}
           </Button>

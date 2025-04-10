@@ -4,6 +4,7 @@ import { Separator } from "../components/ui/separator";
 import { cn } from "../lib/utils";
 import { Check } from "lucide-react";
 import { convertMeasurementsInText } from "../lib/unitConversions";
+import { getTranslation, Language } from "../lib/i18n";
 
 interface RecipeDisplayProps {
   recipe?: {
@@ -20,11 +21,12 @@ interface RecipeDisplayProps {
   className?: string;
   isDayBeforePreparation?: boolean;
   isMetric?: boolean;
+  language?: Language;
 }
 
 const RecipeDisplay = ({
   recipe = {
-    title: "Pizza Rezept",
+    title: "Pizza Recipe",
     preDoughSteps: [
       "Am Vortag 1120g Vorteig (Poolish) herstellen",
       "Dazu eine Schüssel mit einem Fassungsvermögen von mind. 2,8L nehmen",
@@ -60,7 +62,9 @@ const RecipeDisplay = ({
   className,
   isDayBeforePreparation = false,
   isMetric = true,
+  language = "de",
 }: RecipeDisplayProps) => {
+  const t = getTranslation(language);
   // State to track checked steps for each section
   const [preDoughCheckedSteps, setPreDoughCheckedSteps] = useState<number[]>(
     [],
@@ -124,12 +128,12 @@ const RecipeDisplay = ({
         {recipe.preDoughSteps && recipe.preDoughSteps.length > 0 && (
           <div>
             <h3 className="text-lg font-semibold text-gray-700 mb-3">
-              Vorteig Zubereitung
+              {t.recipe.preDough.title}
               {recipe.preDoughDate && (
                 <span className="flex text-sm font-normal text-gray-500">
                   {isDayBeforePreparation && (
                     <span className="text-amber-600 font-semibold mr-1">
-                      Ein Tag vorher:{" "}
+                      {t.recipe.preDough.dayBefore}{" "}
                     </span>
                   )}
                   {recipe.preDoughDate}
@@ -193,12 +197,12 @@ const RecipeDisplay = ({
         {recipe.mainDoughSteps && recipe.mainDoughSteps.length > 0 && (
           <div>
             <h3 className="text-lg font-semibold text-gray-700 mb-3">
-              Hauptteig Zubereitung
+              {t.recipe.mainDough.title}
               {recipe.mainDoughDate && (
                 <span className="flex text-sm font-normal text-gray-500">
                   {isDayBeforePreparation && (
                     <span className="text-amber-600 font-semibold mr-1">
-                      Ein Tag später:{" "}
+                      {t.recipe.mainDough.dayAfter}{" "}
                     </span>
                   )}
                   {recipe.mainDoughDate}
@@ -261,7 +265,7 @@ const RecipeDisplay = ({
 
         <div>
           <h3 className="text-lg font-semibold text-gray-700 mb-3">
-            Backanleitung
+            {t.recipe.baking.title}
             {recipe.bakingDate && (
               <span className="flex text-sm font-normal text-gray-500">
                 {recipe.bakingDate}
@@ -345,7 +349,7 @@ const RecipeDisplay = ({
               <polyline points="17 21 17 13 7 13 7 21" />
               <polyline points="7 3 7 8 15 8" />
             </svg>
-            Rezept speichern
+            {t.recipe.buttons.save}
           </button>
 
           <button
@@ -370,7 +374,7 @@ const RecipeDisplay = ({
               <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
               <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
             </svg>
-            Rezept teilen
+            {t.recipe.buttons.share}
           </button>
         </div>
       </div>

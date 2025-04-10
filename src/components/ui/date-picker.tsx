@@ -1,6 +1,6 @@
 import * as React from "react";
 import { format } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
 import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -15,9 +15,18 @@ import {
 interface DatePickerProps {
   date?: Date;
   setDate: (date: Date | undefined) => void;
+  locale?: string;
 }
 
-export function DatePicker({ date, setDate }: DatePickerProps) {
+export function DatePicker({
+  date,
+  setDate,
+  locale = "de-DE",
+}: DatePickerProps) {
+  const localeObj = locale.startsWith("en") ? enUS : de;
+  const placeholderText = locale.startsWith("en")
+    ? "Select date"
+    : "Datum auswählen";
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -30,9 +39,9 @@ export function DatePicker({ date, setDate }: DatePickerProps) {
         >
           <CalendarIcon className="mr-2 h-4 w-4" />
           {date ? (
-            format(date, "PPP", { locale: de })
+            format(date, "PPP", { locale: localeObj })
           ) : (
-            <span>Datum auswählen</span>
+            <span>{placeholderText}</span>
           )}
         </Button>
       </PopoverTrigger>
@@ -42,6 +51,7 @@ export function DatePicker({ date, setDate }: DatePickerProps) {
           selected={date}
           onSelect={setDate}
           initialFocus
+          locale={localeObj}
         />
       </PopoverContent>
     </Popover>

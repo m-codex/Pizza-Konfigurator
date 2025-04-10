@@ -1,6 +1,7 @@
 import React from "react";
 import { Button } from "./ui/button";
 import { Share2, Save, FileText } from "lucide-react";
+import { getTranslation, Language } from "../lib/i18n";
 
 interface ActionButtonsProps {
   onGenerateRecipe?: () => void;
@@ -8,6 +9,7 @@ interface ActionButtonsProps {
   onShare?: () => void;
   isGenerating?: boolean;
   isRecipeGenerated?: boolean;
+  language?: Language;
 }
 
 const ActionButtons = ({
@@ -16,7 +18,9 @@ const ActionButtons = ({
   onShare = () => console.log("Share clicked"),
   isGenerating = false,
   isRecipeGenerated = false,
+  language = "de",
 }: ActionButtonsProps) => {
+  const t = getTranslation(language);
   return (
     <div className="flex flex-col sm:flex-row gap-4 w-full justify-center items-center p-3 sm:p-4 bg-white rounded-lg shadow-sm">
       <Button
@@ -26,7 +30,9 @@ const ActionButtons = ({
         size="lg"
       >
         <FileText className="h-5 w-5" />
-        {isGenerating ? "Rezept wird generiert..." : "Rezept generieren"}
+        {isGenerating
+          ? t.actionButtons.generating
+          : t.actionButtons.generateRecipe}
       </Button>
 
       {isRecipeGenerated && (
@@ -38,7 +44,7 @@ const ActionButtons = ({
             size="lg"
           >
             <Save className="h-5 w-5" />
-            Rezept speichern
+            {t.actionButtons.saveRecipe}
           </Button>
 
           <Button
@@ -48,7 +54,7 @@ const ActionButtons = ({
             size="lg"
           >
             <Share2 className="h-5 w-5" />
-            Rezept teilen
+            {t.actionButtons.shareRecipe}
           </Button>
         </>
       )}

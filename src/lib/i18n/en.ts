@@ -14,11 +14,11 @@ export const en: Translations = {
     },
   },
   home: {
-    title: "The Ultimate Pizza Configurator",
-    subtitle: "Create your perfect homemade pizza with our configurator",
+    title: "The Ultimate Pizza Recipe Generator",
+    subtitle: "Create your perfect homemade pizza with this generator",
     footer: {
       copyright: "© {year} Pizza Configurator",
-      description: "Create your perfect homemade pizza with our configurator",
+      description: "Create your perfect homemade pizza with this generator",
     },
   },
   tabs: {
@@ -27,7 +27,7 @@ export const en: Translations = {
     shopping: "Shopping List",
   },
   configuration: {
-    title: "Pizza Configurator",
+    title: "Pizza Recipe Generator",
     pizzaCount: "Number of Pizzas",
     pizzaSize: "Pizza Size",
     preparation: "Preparation",
@@ -78,6 +78,34 @@ export const en: Translations = {
     pizzaSurfaceInfo: "No separate surface needed for pizza ovens",
     pastStartTimeWarning:
       "Warning: The start time for the first task is in the past. Please adjust the date or time.",
+    tooltips: {
+      pizzaCount:
+        "Select how many pizzas you want to make. Each pizza will be one dough ball.",
+      pizzaSize:
+        "Choose the diameter of your pizza. Larger pizzas require more dough per ball.",
+      preparation:
+        "Select your preferred preparation method. Using a pre-dough improves flavor and texture.",
+      hydration:
+        "The ratio of water to flour. Lower percentages (60-65%) are easier for beginners to work with, while higher percentages (from 70%) are suitable for experienced bakers and produce a fluffier pizza base.",
+      yeastType:
+        "Choose between dry or fresh yeast. Fresh yeast provides a slightly better rise but has a shorter shelf life.",
+      predoughPercentage:
+        "The percentage of the total dough that will be prepared as pre-dough. Higher percentages create more complex flavors.",
+      kneadingMethod:
+        "Choose whether to knead by hand or with a machine. Hand kneading takes longer but gives you more control.",
+      ovenType:
+        "Select your oven type. Different ovens require different baking techniques and times.",
+      maxTemperature:
+        "The maximum temperature your oven can reach. Higher temperatures result in faster baking times and better pizza flavor.",
+      pizzaSurface:
+        "The surface on which you'll bake your pizza. Pizza stones and steels help achieve a crispy crust.",
+      ovenSize:
+        "The dimensions of your oven. This affects the heatup-time and how many pizzas you can bake at once.",
+      eatingTime:
+        "Set when you plan to eat. The recipe will calculate all preparation times based on this.",
+      toppings:
+        "Choose your favourite toppings. The shopping list will include these ingredients as well as the dough ingredients and mozzarella, tomato sauce, olive oil and basil.",
+    },
     selectOptions: {
       preparationTime: {
         dayBefore: "Pre-dough a day before",
@@ -136,10 +164,12 @@ export const en: Translations = {
         letRest: "Let it rest covered at room temperature for {time}h",
         putInFridge: "Then cover and place in the refrigerator",
         takeFromFridge:
-          "The next day, 3 hours before baking, take the bowl with the pre-dough (poolish) out of the refrigerator",
+          "The next day, 3-4 hours before baking, take the bowl with the pre-dough (poolish) out of the refrigerator",
       },
       maindough: {
         prepareMixer: "Prepare the stand mixer with the dough hook",
+        takeBowl:
+          "Take a new bowl with a capacity of at least {size}L and add the pre-dough",
         addPredough: "Put the pre-dough (poolish) into the mixer bowl",
         addWater: "Add {amount}ml of water",
         addSalt: "Then add {amount}g of salt and stir",

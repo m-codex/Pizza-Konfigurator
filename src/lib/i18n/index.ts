@@ -65,6 +65,21 @@ export interface Translations {
     predoughInfo: string;
     pizzaSurfaceInfo: string;
     pastStartTimeWarning: string;
+    tooltips: {
+      pizzaCount: string;
+      pizzaSize: string;
+      preparation: string;
+      hydration: string;
+      yeastType: string;
+      predoughPercentage: string;
+      kneadingMethod: string;
+      ovenType: string;
+      maxTemperature: string;
+      pizzaSurface: string;
+      ovenSize: string;
+      eatingTime: string;
+      toppings: string;
+    };
     selectOptions: {
       preparationTime: {
         dayBefore: string;

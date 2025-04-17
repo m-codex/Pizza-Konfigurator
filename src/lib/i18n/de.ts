@@ -14,13 +14,12 @@ export const de: Translations = {
     },
   },
   home: {
-    title: "Der Ultimative Pizza-Konfigurator",
-    subtitle:
-      "Erstelle deine perfekte hausgemachte Pizza mit unserem Konfigurator",
+    title: "Der Ultimative Pizza-Rezept-Generator",
+    subtitle: "Erstelle deine perfekte hausgemachte Pizza mit diesem Generator",
     footer: {
       copyright: "© {year} Pizza-Konfigurator",
       description:
-        "Erstelle deine perfekte hausgemachte Pizza mit unserem Konfigurator",
+        "Erstelle deine perfekte hausgemachte Pizza mit diesem Generator",
     },
   },
   tabs: {
@@ -29,7 +28,7 @@ export const de: Translations = {
     shopping: "Einkaufsliste",
   },
   configuration: {
-    title: "Pizza Konfigurator",
+    title: "Pizza-Rezept-Generator",
     pizzaCount: "Anzahl der Pizzen",
     pizzaSize: "Pizzagröße",
     preparation: "Vorbereitung",
@@ -80,6 +79,34 @@ export const de: Translations = {
     pizzaSurfaceInfo: "Bei Pizzaöfen ist keine separate Unterlage notwendig",
     pastStartTimeWarning:
       "Achtung: Der Startzeitpunkt für die erste Aufgabe liegt in der Vergangenheit. Bitte passe das Datum oder die Uhrzeit an.",
+    tooltips: {
+      pizzaCount:
+        "Wähle aus, wie viele Pizzen du machen möchtest. Jede Pizza entspricht einem Teigball.",
+      pizzaSize:
+        "Wähle den Durchmesser deiner Pizza. Größere Pizzen benötigen mehr Teig pro Teigball.",
+      preparation:
+        "Wähle deine bevorzugte Zubereitungsmethode. Die Verwendung eines Vorteigs verbessert Geschmack und Textur.",
+      hydration:
+        "Das Verhältnis von Wasser zu Mehl. Niedrigere Prozentsätze (60-65%) sind für Anfänger einfacher zu Verarbeiten, während höhere Prozentsätze (ab 70%) für erfahrene Bäcker geeignet sind und einen luftigeren Pizzaboden erzeugen..",
+      yeastType:
+        "Wähle zwischen Trockenhefe oder Frischhefe. Frischhefe sorgt für ein etwas besseres Aufgehen, hat aber eine kürzere Haltbarkeit.",
+      predoughPercentage:
+        "Der Prozentsatz des Gesamtteigs, der als Vorteig zubereitet wird. Höhere Prozentsätze erzeugen komplexere Aromen.",
+      kneadingMethod:
+        "Wähle, ob du von Hand oder mit einer Maschine kneten möchtest. Kneten von Hand dauert länger, gibt dir aber mehr Kontrolle.",
+      ovenType:
+        "Wähle deinen Ofentyp. Verschiedene Öfen erfordern unterschiedliche Backtechniken und -zeiten.",
+      maxTemperature:
+        "Die maximale Temperatur, die dein Ofen erreichen kann. Höhere Temperaturen führen zu kürzeren Backzeiten und geschmacklich besserer Pizza.",
+      pizzaSurface:
+        "Die Oberfläche, auf der du deine Pizza backen wirst. Pizzasteine und -stähle helfen, eine knusprige Kruste zu erzielen.",
+      ovenSize:
+        "Die Abmessungen deines Ofens. Dies beeinflusst, wie viele Pizzen du gleichzeitig backen kannst.",
+      eatingTime:
+        "Lege fest, wann du essen möchtest. Das Rezept berechnet alle Vorbereitungszeiten basierend darauf.",
+      toppings:
+        "Wähle die gewünschten Belagszutaten. Die Einkaufsliste enthält diese Zutaten sowie die Zutaten für den Teig, Mozzarella, Tomatensauce, Olivenöl und Basilikum.",
+    },
     selectOptions: {
       preparationTime: {
         dayBefore: "Vorteig ein Tag zuvor",
@@ -130,7 +157,7 @@ export const de: Translations = {
       predough: {
         makePredough: "Am Vortag {weight}g Vorteig (Poolish) herstellen",
         takeBowl:
-          "Dazu eine Schüssel mit einem Fassungsvermögen von mind. {size}L nehmen",
+          "Dazu eine Schüssel mit einem Fassungsvermögen von mind. {size}L verwenden",
         addWater: "{amount}ml Wasser hineingeben",
         addYeast: "Dann {amount}g {type} dazu geben und kurz umrühren",
         addHoney: "Danach {amount}g Honig beimischen",
@@ -139,10 +166,12 @@ export const de: Translations = {
         letRest: "Dann {time}h zugedeckt bei Zimmertemperatur stehen lassen",
         putInFridge: "Danach zugedeckt in den Kühlschrank geben",
         takeFromFridge:
-          "Am nächsten Tag 3h vor dem Backen die Schüssel mit dem Vorteig (Poolish) aus dem Kühlschrank nehmen",
+          "Am nächsten Tag 3-4h vor dem Backen die Schüssel mit dem Vorteig (Poolish) aus dem Kühlschrank nehmen",
       },
       maindough: {
         prepareMixer: "Küchenmaschine mit Knethaken vorbereiten",
+        takeBowl:
+          "Eine neue Schüssel mit Fassungsvermögen von mind. {size}L nehmen und den Vorteig hinzugeben",
         addPredough:
           "Den Vorteig (Poolish) in den Behälter der Küchemaschine geben",
         addWater: "{amount}ml Wasser hinzugeben",
@@ -155,15 +184,15 @@ export const de: Translations = {
         formBall:
           "Gekneteter Teig auf Arbeitsplatte zu einer Kugel formen und mit Olivenöl leicht einreiben",
         coverAndRest:
-          "Dann mit einer Schüssel zudecken für 15min stehen lassen",
+          "Dann mit einer Schüssel zudecken und für 15min stehen lassen",
         foldDough:
-          "Dann Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
+          "Danach Teig ca. 10mal anheben und auf den Tisch zurück legen sodass er gefaltet wird. Dabei den Teig immer um 90° drehen.",
         formBallAgain:
           "Wieder zu einer Kugel formen und zugedeckt für 1h stehen lassen",
         divideDough:
           "Teig in {count} Teiglinge à {size} teilen und kleine Kugeln formen",
         putInContainer:
-          "Kugeln in einem geschlossenen, mit Olivenöl eingeriebenen Behälter, geben",
+          "Kugeln in einen geschlossenen, mit Olivenöl eingeriebenen Behälter, geben",
       },
       baking: {
         preheatOven:

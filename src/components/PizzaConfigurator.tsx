@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import ConfigurationForm, { PizzaConfiguration } from "./ConfigurationForm";
 import RecipeDisplay from "./RecipeDisplay";
 import ShoppingList from "./ShoppingList";
@@ -41,12 +42,48 @@ interface PizzaConfiguratorProps {
 const PizzaConfigurator: React.FC<PizzaConfiguratorProps> = ({
   language: initialLanguage = "de",
 }) => {
-  const [language, setLanguage] = useState<Language>(initialLanguage);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  // Get language from URL or localStorage or default to initialLanguage
+  const getInitialLanguage = (): Language => {
+    const urlLang = searchParams.get("lang") as Language;
+    const storedLang = localStorage.getItem("pizzaConfigLanguage") as Language;
+
+    // Check if the URL parameter is valid
+    if (urlLang === "de" || urlLang === "en") {
+      return urlLang;
+    }
+
+    // Check if localStorage has a valid language
+    if (storedLang === "de" || storedLang === "en") {
+      return storedLang;
+    }
+
+    return initialLanguage;
+  };
+
+  const [language, setLanguage] = useState<Language>(getInitialLanguage());
+
+  // Update URL and localStorage when language changes
+  useEffect(() => {
+    // Update URL with language parameter
+    searchParams.set("lang", language);
+    setSearchParams(searchParams);
+
+    // Save to localStorage
+    localStorage.setItem("pizzaConfigLanguage", language);
+
+    // Update document language for date formatting
+    document.documentElement.lang = language === "en" ? "en-US" : "de-DE";
+  }, [language, searchParams, setSearchParams]);
 
   // Update language when initialLanguage prop changes
-  React.useEffect(() => {
-    setLanguage(initialLanguage);
-  }, [initialLanguage]);
+  useEffect(() => {
+    if (initialLanguage !== language && !searchParams.get("lang")) {
+      setLanguage(initialLanguage);
+    }
+  }, [initialLanguage, language, searchParams]);
   const [unitSystem, setUnitSystem] = useState<"metric" | "us">("metric");
   const t = getTranslation(language);
   const [config, setConfig] = useState<PizzaConfiguration>({
@@ -180,12 +217,12 @@ const PizzaConfigurator: React.FC<PizzaConfiguratorProps> = ({
   };
 
   // Check if start time is in the past when component mounts
-  React.useEffect(() => {
+  useEffect(() => {
     checkIfStartTimeIsPast(config);
   }, []);
 
   // Update recipe when unit system or language changes
-  React.useEffect(() => {
+  useEffect(() => {
     if (recipe) {
       // Regenerate the recipe with the new language
       const { preDoughDate, mainDoughDate, bakingDate, eatingDate } =
@@ -563,6 +600,12 @@ const PizzaConfigurator: React.FC<PizzaConfiguratorProps> = ({
         config.kneadingMethod === "With Machine"
           ? t.recipe.steps.maindough.prepareMixer
           : null,
+        config.kneadingMethod === "By Hand"
+          ? t.recipe.steps.maindough.takeBowl.replace(
+              "{size}",
+              mainDoughBowlSize.toString(),
+            )
+          : null,
         config.kneadingMethod === "With Machine"
           ? t.recipe.steps.maindough.addPredough
           : t.recipe.steps.maindough.addWater.replace(
@@ -650,6 +693,12 @@ const PizzaConfigurator: React.FC<PizzaConfiguratorProps> = ({
         t.recipe.steps.predough.letRest.replace("{time}", "6"),
         config.kneadingMethod === "With Machine"
           ? t.recipe.steps.maindough.prepareMixer
+          : null,
+        config.kneadingMethod === "By Hand"
+          ? t.recipe.steps.maindough.takeBowl.replace(
+              "{size}",
+              mainDoughBowlSize.toString(),
+            )
           : null,
         config.kneadingMethod === "With Machine"
           ? t.recipe.steps.maindough.addPredough
@@ -983,8 +1032,9 @@ const PizzaConfigurator: React.FC<PizzaConfiguratorProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="text-white text-balance -mx-10 px-10 shadow-md bg-center bg-cover bg-[url('https://storage.googleapis.com/tempo-public-images/github%7C97963158-1743606315193-Pizzajpg')]">
-        <div className="flex flex-col py-6 gap-2 w-full mx-auto px-2 sm:px-4 bg-black/30">
+      <header className="text-white text-balance -mx-10 px-10 shadowx-md bg-[#c8a373]">
+        <div className="flex flex-col py-6 gap-2 w-full mx-auto px-2 sm:px-4">
+          <span className="text-4xl font-bold text-center">🍕</span>
           <h1 className="text-4xl font-bold text-center">{t.home.title}</h1>
           <p className="text-xl text-center mt-2 max-w-2xl mx-auto">
             {t.home.subtitle}
@@ -998,9 +1048,6 @@ const PizzaConfigurator: React.FC<PizzaConfiguratorProps> = ({
               value={language}
               onValueChange={(value: Language) => {
                 setLanguage(value);
-                // Force re-render of date/time components
-                document.documentElement.lang =
-                  value === "en" ? "en-US" : "de-DE";
               }}
             >
               <SelectTrigger className="w-[180px]">

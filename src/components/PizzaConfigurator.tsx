@@ -1032,9 +1032,11 @@ const PizzaConfigurator: React.FC<PizzaConfiguratorProps> = ({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="text-white text-balance -mx-10 px-10 shadowx-md bg-[#c8a373]">
+      <header className="text-white text-balance -mx-10 px-10 bg-neutral-800">
         <div className="flex flex-col py-6 gap-2 w-full mx-auto px-2 sm:px-4">
-          <span className="text-4xl font-bold text-center">🍕</span>
+          <div className="flex justify-center">
+            <img src="/Pizza.png" alt="Pizza" className="w-32 h-32 mb-2 flex" />
+          </div>
           <h1 className="text-4xl font-bold text-center">{t.home.title}</h1>
           <p className="text-xl text-center mt-2 max-w-2xl mx-auto">
             {t.home.subtitle}
@@ -1155,7 +1157,7 @@ const PizzaConfigurator: React.FC<PizzaConfiguratorProps> = ({
           </Tabs>
         </div>
       </main>
-      <footer className="bg-gray-800 text-white py-6 mt-12">
+      <footer className="bg-neutral-800 text-white py-6 mt-12">
         <div className="container mx-auto px-1 sm:px-4 text-center">
           <p>
             {t.home.footer.copyright.replace(

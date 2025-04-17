@@ -111,6 +111,11 @@ export interface Translations {
     title: string;
     configuration: string;
     editButton: string;
+    detailedSteps: string;
+    nextStep: string;
+    previousStep: string;
+    allSteps: string;
+    stepCounter: string;
     preDough: {
       title: string;
       dayBefore: string;
@@ -140,6 +145,42 @@ export interface Translations {
       };
       maindough: {
         prepareMixer: string;
+        takeBowl: string;
+        addPredough: string;
+        addWater: string;
+        addSalt: string;
+        addOil: string;
+        addFlour: string;
+        kneadByMachine: string;
+        kneadByHand: string;
+        formBall: string;
+        coverAndRest: string;
+        foldDough: string;
+        formBallAgain: string;
+        divideDough: string;
+        putInContainer: string;
+      };
+      baking: {
+        preheatOven: string;
+        formPizza: string;
+        checkTemperature: string;
+      };
+    };
+    detailedDescriptions: {
+      predough: {
+        makePredough: string;
+        takeBowl: string;
+        addWater: string;
+        addYeast: string;
+        addHoney: string;
+        addFlour: string;
+        letRest: string;
+        putInFridge: string;
+        takeFromFridge: string;
+      };
+      maindough: {
+        prepareMixer: string;
+        takeBowl: string;
         addPredough: string;
         addWater: string;
         addSalt: string;

@@ -138,13 +138,18 @@ export const de: Translations = {
     title: "Pizza Rezept",
     configuration: "Deine Konfiguration",
     editButton: "Bearbeiten",
+    detailedSteps: "Detaillierte Einzelschritte",
+    nextStep: "Nächster Schritt",
+    previousStep: "Zurück",
+    allSteps: "Alle Schritte",
+    stepCounter: "Schritt {current} von {total}",
     preDough: {
       title: "Vorteig Zubereitung",
-      dayBefore: "Ein Tag vorher: ",
+      dayBefore: "Ein Tag vorher",
     },
     mainDough: {
       title: "Hauptteig Zubereitung",
-      dayAfter: "Ein Tag später: ",
+      dayAfter: "Ein Tag später",
     },
     baking: {
       title: "Backanleitung",
@@ -201,6 +206,68 @@ export const de: Translations = {
           "Pizzakugel von Hand zu einem Pizzaboden formen und Pizza kurz vor dem Backen belegen",
         checkTemperature:
           "Temperatur von Ofen und {surface} prüfen. Wenn beides bei {temp} liegt Pizza für ca. {time}min backen",
+      },
+    },
+    detailedDescriptions: {
+      predough: {
+        makePredough:
+          "Der Vorteig, auch Poolish genannt, ist eine Mischung aus Mehl, Wasser und einer kleinen Menge Hefe, die über einen längeren Zeitraum fermentiert. Dies verbessert den Geschmack und die Textur des Teigs erheblich. Die angegebene Menge wird für alle Pizzen in diesem Rezept ausreichen.",
+        takeBowl:
+          "Verwende eine ausreichend große Schüssel, da der Vorteig während der Fermentation aufgehen und sein Volumen vergrößern wird. Die Schüssel sollte mindestens doppelt so groß sein wie das anfängliche Volumen des Vorteigs.",
+        addWater:
+          "Verwende lauwarmes Wasser (etwa 25-30°C), um die Aktivierung der Hefe zu fördern. Die Wassertemperatur ist wichtig für eine optimale Fermentation.",
+        addYeast:
+          "Rühre die Hefe vorsichtig ein, bis sie sich vollständig im Wasser aufgelöst hat. Bei Trockenhefe ist es nicht notwendig, sie vorher zu aktivieren.",
+        addHoney:
+          "Honig dient als Nahrung für die Hefe und beschleunigt den Fermentationsprozess. Er verleiht dem Teig auch einen subtilen Geschmack.",
+        addFlour:
+          "Verwende hochwertiges Pizzamehl (Tipo 00) für beste Ergebnisse. Mische gründlich, aber nicht zu lange, um eine homogene Masse ohne Mehlklumpen zu erhalten.",
+        letRest:
+          "Während dieser Zeit bei Raumtemperatur beginnt die Hefe zu arbeiten und der Teig entwickelt erste Aromen. Du wirst bemerken, dass der Teig Blasen bildet und leicht aufgeht.",
+        putInFridge:
+          "Die Kühlung verlangsamt den Fermentationsprozess und ermöglicht eine längere, kontrollierte Entwicklung der Aromen. Decke die Schüssel mit Frischhaltefolie oder einem feuchten Tuch ab, um ein Austrocknen zu verhindern.",
+        takeFromFridge:
+          "Nach der Kühlung sollte der Vorteig deutlich an Volumen zugenommen haben und eine blasige, schwammartige Konsistenz aufweisen. Lasse ihn auf Raumtemperatur kommen, bevor du mit dem Hauptteig beginnst.",
+      },
+      maindough: {
+        prepareMixer:
+          "Falls du eine Küchenmaschine verwendest, stelle sicher, dass der Knethaken richtig befestigt ist. Die Maschine erleichtert das Kneten erheblich und spart Kraft.",
+        takeBowl:
+          "Eine saubere, große Schüssel ist wichtig, da der Teig während des Knetens und Ruhens weiter aufgehen wird. Achte darauf, dass genügend Platz für die Expansion vorhanden ist.",
+        addPredough:
+          "Der fermentierte Vorteig sollte blasig und leicht säuerlich riechen. Er bildet die Basis für deinen Hauptteig und bringt bereits viel Geschmack mit.",
+        addWater:
+          "Die Wassermenge bestimmt die Hydration (Feuchtigkeit) des Teigs. Ein feuchterer Teig ergibt eine luftigere Kruste, ist aber schwieriger zu handhaben.",
+        addSalt:
+          "Salz ist entscheidend für den Geschmack und beeinflusst auch die Teigstruktur. Es verlangsamt die Hefeaktivität und stärkt das Glutennetzwerk.",
+        addOil:
+          "Olivenöl verleiht dem Teig Geschmeidigkeit und einen reicheren Geschmack. Es hilft auch, die Kruste knuspriger zu machen. Verwende hochwertiges natives Olivenöl extra für besten Geschmack.",
+        addFlour:
+          "Füge das Mehl schrittweise hinzu und vermische es zunächst leicht, um Klumpenbildung zu vermeiden. Die richtige Mehlmenge ist erreicht, wenn der Teig feucht, aber nicht klebrig ist.",
+        kneadByMachine:
+          "Das maschinelle Kneten entwickelt das Glutennetzwerk effizient. Beginne mit niedriger Geschwindigkeit und erhöhe sie allmählich. Der Teig ist fertig, wenn er glatt, elastisch und leicht klebrig ist.",
+        kneadByHand:
+          "Beim Kneten von Hand drückst, faltest und dehnst du den Teig wiederholt. Dies entwickelt das Glutennetzwerk, das für eine gute Textur wichtig ist. Der Teig ist fertig, wenn er glatt und elastisch ist und sich leicht dehnen lässt, ohne zu reißen.",
+        formBall:
+          "Forme den Teig zu einer straffen Kugel, indem du die Ränder nach unten und zur Mitte ziehst. Eine glatte Oberfläche hilft, Feuchtigkeit zu bewahren. Das Olivenöl verhindert das Austrocknen und erleichtert die spätere Handhabung.",
+        coverAndRest:
+          "Diese erste Ruhezeit ermöglicht es dem Gluten, sich zu entspannen, was das spätere Formen erleichtert. Die Abdeckung verhindert, dass sich eine Kruste auf der Oberfläche bildet.",
+        foldDough:
+          "Das Falten stärkt die Teigstruktur und verteilt die Gase gleichmäßig. Hebe den Teig an einer Seite an, dehne ihn leicht und falte ihn über sich selbst. Drehe den Teig nach jeder Faltung, um alle Seiten gleichmäßig zu bearbeiten.",
+        formBallAgain:
+          "Nach dem Falten formst du den Teig erneut zu einer Kugel. Diese längere Ruhezeit ermöglicht eine weitere Fermentation und Aromaentwicklung. Der Teig sollte deutlich an Volumen zunehmen.",
+        divideDough:
+          "Teile den Teig vorsichtig, ohne zu viel Gas zu entweichen. Wiege jeden Teigling für gleichmäßige Pizzagrößen. Beim Formen der Kugeln ziehst du die Ränder nach unten und zur Mitte, um eine glatte Oberfläche zu erhalten.",
+        putInContainer:
+          "Ein geschlossener Behälter schützt vor Zugluft und verhindert das Austrocknen. Das Olivenöl erleichtert das spätere Entnehmen der Teiglinge. Die Teiglinge sollten mit ausreichend Abstand zueinander platziert werden, da sie weiter aufgehen werden.",
+      },
+      baking: {
+        preheatOven:
+          "Ein gründlich vorgeheizter Ofen ist entscheidend für eine knusprige Kruste. Je höher die Temperatur, desto schneller backt die Pizza und desto besser ist das Ergebnis. Bei Haushaltsöfen solltest du die maximale Temperatur einstellen und ausreichend Zeit zum Vorheizen einplanen.",
+        formPizza:
+          "Arbeite den Teig vorsichtig mit den Fingerspitzen von der Mitte nach außen, um einen dünnen Boden mit einem dickeren Rand zu formen. Vermeide Nudelholz und übermäßiges Kneten, um die Luftblasen im Teig zu erhalten. Belege die Pizza erst kurz vor dem Backen, um ein Durchweichen zu vermeiden.",
+        checkTemperature:
+          "Die ideale Backtemperatur hängt vom Ofentyp ab. Bei einem Pizzastein oder -stahl ist es wichtig, dass dieser die richtige Temperatur erreicht hat, bevor du die Pizza darauf legst. Verwende einen Infrarot-Thermometer, um die Temperatur zu überprüfen, falls verfügbar. Die Backzeit ist kurz, also behalte die Pizza im Auge, um ein Verbrennen zu vermeiden.",
       },
     },
   },

@@ -137,13 +137,18 @@ export const en: Translations = {
     title: "Pizza Recipe",
     configuration: "Your Configuration",
     editButton: "Edit",
+    detailedSteps: "Detailed Step-by-Step",
+    nextStep: "Next Step",
+    previousStep: "Back",
+    allSteps: "Show All Steps",
+    stepCounter: "Step {current} of {total}",
     preDough: {
       title: "Pre-dough Preparation",
-      dayBefore: "One day before: ",
+      dayBefore: "One day before",
     },
     mainDough: {
       title: "Main Dough Preparation",
-      dayAfter: "One day later: ",
+      dayAfter: "One day later",
     },
     baking: {
       title: "Baking Instructions",
@@ -196,6 +201,68 @@ export const en: Translations = {
           "Form the pizza ball into a pizza base by hand and add toppings just before baking",
         checkTemperature:
           "Check the temperature of the oven and {surface}. When both are at {temp}, bake the pizza for about {time} minutes",
+      },
+    },
+    detailedDescriptions: {
+      predough: {
+        makePredough:
+          "The pre-dough, also called poolish, is a mixture of flour, water, and a small amount of yeast that ferments over a longer period. This significantly improves the flavor and texture of the dough. The specified amount will be sufficient for all pizzas in this recipe.",
+        takeBowl:
+          "Use a bowl that's large enough, as the pre-dough will rise and increase in volume during fermentation. The bowl should be at least twice as large as the initial volume of the pre-dough.",
+        addWater:
+          "Use lukewarm water (about 25-30°C/77-86°F) to promote yeast activation. The water temperature is important for optimal fermentation.",
+        addYeast:
+          "Stir the yeast gently until it's completely dissolved in the water. With dry yeast, it's not necessary to activate it beforehand.",
+        addHoney:
+          "Honey serves as food for the yeast and accelerates the fermentation process. It also gives the dough a subtle flavor.",
+        addFlour:
+          "Use high-quality pizza flour (Tipo 00) for best results. Mix thoroughly but not too long to achieve a homogeneous mass without flour lumps.",
+        letRest:
+          "During this time at room temperature, the yeast begins to work and the dough develops initial flavors. You'll notice that the dough forms bubbles and rises slightly.",
+        putInFridge:
+          "Refrigeration slows down the fermentation process and allows for a longer, controlled development of flavors. Cover the bowl with plastic wrap or a damp cloth to prevent drying out.",
+        takeFromFridge:
+          "After refrigeration, the pre-dough should have significantly increased in volume and have a bubbly, spongy consistency. Let it come to room temperature before starting with the main dough.",
+      },
+      maindough: {
+        prepareMixer:
+          "If you're using a stand mixer, make sure the dough hook is properly attached. The machine makes kneading much easier and saves energy.",
+        takeBowl:
+          "A clean, large bowl is important as the dough will continue to rise during kneading and resting. Make sure there's enough space for expansion.",
+        addPredough:
+          "The fermented pre-dough should be bubbly and smell slightly sour. It forms the base for your main dough and already brings a lot of flavor.",
+        addWater:
+          "The amount of water determines the hydration (moisture) of the dough. A moister dough results in an airier crust but is more difficult to handle.",
+        addSalt:
+          "Salt is crucial for flavor and also affects the dough structure. It slows down yeast activity and strengthens the gluten network.",
+        addOil:
+          "Olive oil gives the dough suppleness and a richer flavor. It also helps make the crust crispier. Use high-quality extra virgin olive oil for the best flavor.",
+        addFlour:
+          "Add the flour gradually and mix it lightly at first to avoid lumps. The right amount of flour is achieved when the dough is moist but not sticky.",
+        kneadByMachine:
+          "Machine kneading develops the gluten network efficiently. Start at low speed and gradually increase it. The dough is ready when it's smooth, elastic, and slightly sticky.",
+        kneadByHand:
+          "When kneading by hand, you repeatedly press, fold, and stretch the dough. This develops the gluten network, which is important for good texture. The dough is ready when it's smooth and elastic and can be stretched slightly without tearing.",
+        formBall:
+          "Shape the dough into a tight ball by pulling the edges down and to the center. A smooth surface helps retain moisture. The olive oil prevents drying out and makes later handling easier.",
+        coverAndRest:
+          "This first rest period allows the gluten to relax, which makes later shaping easier. The cover prevents a crust from forming on the surface.",
+        foldDough:
+          "Folding strengthens the dough structure and distributes the gases evenly. Lift the dough on one side, stretch it slightly, and fold it over itself. Rotate the dough after each fold to work all sides evenly.",
+        formBallAgain:
+          "After folding, shape the dough into a ball again. This longer rest period allows for further fermentation and flavor development. The dough should significantly increase in volume.",
+        divideDough:
+          "Divide the dough carefully without letting too much gas escape. Weigh each piece for uniform pizza sizes. When forming the balls, pull the edges down and to the center to create a smooth surface.",
+        putInContainer:
+          "A closed container protects against drafts and prevents drying out. The olive oil makes it easier to remove the dough pieces later. The pieces should be placed with sufficient distance from each other as they will continue to rise.",
+      },
+      baking: {
+        preheatOven:
+          "A thoroughly preheated oven is crucial for a crispy crust. The higher the temperature, the faster the pizza bakes and the better the result. For household ovens, you should set the maximum temperature and allow sufficient time for preheating.",
+        formPizza:
+          "Work the dough carefully with your fingertips from the center outward to form a thin base with a thicker edge. Avoid rolling pins and excessive kneading to preserve the air bubbles in the dough. Add toppings just before baking to prevent the dough from becoming soggy.",
+        checkTemperature:
+          "The ideal baking temperature depends on the oven type. With a pizza stone or steel, it's important that it has reached the right temperature before you place the pizza on it. Use an infrared thermometer to check the temperature if available. The baking time is short, so keep an eye on the pizza to prevent burning.",
       },
     },
   },

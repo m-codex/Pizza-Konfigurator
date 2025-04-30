@@ -797,6 +797,35 @@ const RecipeDisplay = ({
     const currentSectionType = sections[overallStepIndex];
     const currentIndexInSection = indices[overallStepIndex];
 
+    // Determine which checked steps array to use based on the current section
+    let checkedSteps: number[] = [];
+    let setCheckedSteps: React.Dispatch<
+      React.SetStateAction<number[]>
+    > = () => {};
+
+    if (currentSectionType === "preDough") {
+      checkedSteps = preDoughCheckedSteps;
+      setCheckedSteps = setPreDoughCheckedSteps;
+    } else if (currentSectionType === "mainDough") {
+      checkedSteps = mainDoughCheckedSteps;
+      setCheckedSteps = setMainDoughCheckedSteps;
+    } else {
+      checkedSteps = bakingCheckedSteps;
+      setCheckedSteps = setBakingCheckedSteps;
+    }
+
+    // Check if the current step is completed
+    const isChecked = checkedSteps.includes(currentIndexInSection);
+    const isNext = isNextStep(
+      currentIndexInSection,
+      checkedSteps,
+      currentSectionType === "preDough"
+        ? recipe.preDoughSteps?.length || 0
+        : currentSectionType === "mainDough"
+          ? recipe.mainDoughSteps?.length || 0
+          : recipe.bakingInstructions?.split("\n").length || 0,
+    );
+
     let stepImage = "";
     if (currentSectionType === "preDough") {
       stepImage = getPreDoughImage(currentIndexInSection, currentStep);
@@ -841,7 +870,49 @@ const RecipeDisplay = ({
             />
           </div>
           <div className="p-4 space-y-4">
-            <p className="text-lg font-medium">{currentStep}</p>
+            <div className="flex flex-col md:flex-row items-start md:gap-3 gap-2">
+              <div
+                className={cn(
+                  "flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center",
+                  isChecked
+                    ? "bg-green-100 text-green-700 border border-green-300"
+                    : isNext
+                      ? "bg-blue-100 text-blue-700 border border-blue-300"
+                      : "bg-gray-200 text-gray-500 border border-gray-300",
+                )}
+                onClick={() =>
+                  handleToggleStep(
+                    currentIndexInSection,
+                    checkedSteps,
+                    setCheckedSteps,
+                    currentSectionType === "preDough"
+                      ? recipe.preDoughSteps?.length || 0
+                      : currentSectionType === "mainDough"
+                        ? recipe.mainDoughSteps?.length || 0
+                        : recipe.bakingInstructions?.split("\n").length || 0,
+                  )
+                }
+                style={{ cursor: "pointer" }}
+              >
+                {isChecked ? (
+                  <Check className="h-4 w-4" />
+                ) : (
+                  <span className="text-xs font-medium">
+                    {currentIndexInSection + 1}
+                  </span>
+                )}
+              </div>
+              <p
+                className={cn(
+                  "text-lg font-medium text-left",
+                  isChecked ? "line-through opacity-75" : "",
+                )}
+              >
+                {isMetric
+                  ? currentStep
+                  : convertMeasurementsInText(currentStep, "imperial")}
+              </p>
+            </div>
             {detailedDescription && (
               <div className="mt-4 p-4 bg-gray-50 rounded-md text-sm text-gray-700">
                 {detailedDescription}

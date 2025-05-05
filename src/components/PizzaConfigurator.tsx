@@ -1035,7 +1035,11 @@ const PizzaConfigurator: React.FC<PizzaConfiguratorProps> = ({
       <header className="text-white text-balance -mx-10 px-10 bg-neutral-800">
         <div className="flex flex-col py-6 gap-2 w-full mx-auto px-2 sm:px-4">
           <div className="flex justify-center">
-            <img src="/Pizza.png" alt="Pizza" className="w-32 h-32 mb-2 flex" />
+            <img
+              src={import.meta.env.BASE_URL + "Pizza.png"}
+              alt="Pizza"
+              className="w-32 h-32 mb-2 flex"
+            />
           </div>
           <h1 className="text-4xl font-bold text-center">{t.home.title}</h1>
           <p className="text-xl text-center mt-2 max-w-2xl mx-auto">
